@@ -1,0 +1,17 @@
+{
+  "name": "unpublish",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.2"
+  },
+  "dependencies": {
+    "playwright-qase-reporter": "^2.0.16",
+    "typescript": "^5.7.2"
+  }
+}
