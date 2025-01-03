@@ -66,7 +66,7 @@ export default defineConfig({
       testMatch: '**/tests/Prod/*.spec.ts'
       ,
     },
-
+    //
     {
       name: 'stage',
       use: { viewport: {'width': 1024, 'height': 1980},
@@ -76,11 +76,24 @@ export default defineConfig({
         },
       },
       testMatch: '**/tests/Stage/*.stage.ts',
+    },
 
-    }
+    {
+      name: 'prod-vip',
+      use: { viewport: {'width': 1024, 'height': 1980}},
+      testMatch: '**/tests/VIP/*.vip.ts'
+      ,
+    },
 
-
-
+    {
+      name: 'stage-vip',
+      use: { viewport: {'width': 1024, 'height': 1980},
+      httpCredentials: {
+          username: 'kingbilly-staging',
+          password: '616113',
+        }},
+      testMatch: '**/tests/VIP/*.stage.ts'
+    },
     // {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
