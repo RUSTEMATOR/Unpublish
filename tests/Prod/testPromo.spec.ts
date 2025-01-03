@@ -1,8 +1,9 @@
-import {test} from "@playwright/test";
+import {Page, test} from "@playwright/test";
 import MainPage from "../../src/PO/MainPage/MainPage";
 import PromoPage from "../../src/PO/PromoPage/PromoPage";
 import {USER_ACCOUTNS} from "../../src/Data/UserAccounts"
 import {qase} from "playwright-qase-reporter";
+import {arrayBuffer} from "node:stream/consumers";
 
 
 const locales: object = {
@@ -59,10 +60,19 @@ const tournamentPageLink = 'https://www.kingbillycasino.com/tournaments'
 
 test.describe('Check unpublish on the main page', () => {
     let mainPage: MainPage
+    let page: Page[] = []
+    let ctx: any
 
 
-        test.beforeEach(async ({page}) => {
-            mainPage = new MainPage(page);
+
+        test.beforeEach(async ({browser}) => {
+            const array = [1, 2, 3]
+            ctx = await browser.newContext()
+
+            for(let i = 1; i <=3; i++) {
+                page[i] = await ctx.newPage()
+                mainPage = new MainPage(page[i]);
+            }
 
             await mainPage.goTo(mainPageLink)
         })
@@ -117,6 +127,10 @@ test.describe('Check unpublish on the main page', () => {
         }
 
     }
+
+    test.afterEach(async () => {
+        await ctx.close()
+    })
 })
 
 
