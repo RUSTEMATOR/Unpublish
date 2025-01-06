@@ -24,27 +24,27 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['html'],
     ['list'],
-    // ['playwright-qase-reporter', {
-    //               debug: true,
-    //               mode: 'testops',
-    //               logging: true,
-    //               testops: {
-    //                 api: {
-    //                   token: '2b3e65ab1ee17f1440a13c94b9d1da5429f590fdbcc8d080ddc41268ae50305b',
-    //                 },
-    //
-    //                 project: 'AUTOMATION',
-    //                 uploadAttachments: true,
-    //                 run: {
-    //                   complete: false,
-    //                   title: 'Unpublish all failed experiment',
-    //                   id: '194'
-    //
-    //                 }
-    //
-    //               }
-    //             }
-    //           ]
+    ['playwright-qase-reporter', {
+                  debug: true,
+                  mode: 'testops',
+                  logging: true,
+                  testops: {
+                    api: {
+                      token: '2b3e65ab1ee17f1440a13c94b9d1da5429f590fdbcc8d080ddc41268ae50305b',
+                    },
+
+                    project: 'AUTOMATION',
+                    uploadAttachments: true,
+                    run: {
+                      complete: false,
+                      title: 'Unpublish all failed experiment',
+                      id: '194'
+
+                    }
+
+                  }
+                }
+              ]
 ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

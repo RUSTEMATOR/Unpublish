@@ -61,14 +61,14 @@ export default class BasePage {
 }: {
     receivedArray: Array<string>,
     expectedValue: string
-}): Promise<{ message: string, error?: Error }> {
+}): Promise<boolean> {
 
     if (receivedArray.includes(expectedValue.toUpperCase())) {
-        throw new Error(`${expectedValue} found on the page`);
+       return false
     } else {
         const message = `No ${expectedValue} found`;
         console.log(message);
-        return { message };
+        return true
     }
 }
 
@@ -102,4 +102,14 @@ export default class BasePage {
             return []
         })
     }
+
+    async closePage(): Promise<void> {
+        await this.page.close()
+        console.log('Page closed')
+    }
+
+    async waitForTimeout(timeout: number): Promise<void> {
+        await this.page.waitForTimeout(timeout)
+    }
+
 }

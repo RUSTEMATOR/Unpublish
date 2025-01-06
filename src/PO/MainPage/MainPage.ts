@@ -39,4 +39,17 @@ export default class MainPage extends BasePage {
             return []
         })
     }
+
+    async checkMainSlider({url, lang, expectedValue}:
+                              {
+                                  url: string, lang: string,
+                                  expectedValue: string
+}): Promise<boolean> {
+
+        await this.goTo(url)
+        await this.changeLanguge(lang)
+        await this.clickThroughAllBanners()
+        const receivedArray = await this.getPromoMainText()
+        return await this.checkTitle({receivedArray, expectedValue})
+    }
 }
