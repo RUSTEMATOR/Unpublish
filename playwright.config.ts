@@ -37,8 +37,8 @@ export default defineConfig({
     //                 uploadAttachments: true,
     //                 run: {
     //                   complete: false,
-    //                   title: 'Unpublish all failed experiment',
-    //                   id: '194'
+    //                   title: 'New Year promo unpublish',
+    //                   id: '196'
     //
     //                 }
     //

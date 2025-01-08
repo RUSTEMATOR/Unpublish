@@ -2,7 +2,7 @@ import {test} from "@playwright/test";
 import MainPage from "../../src/PO/MainPage/MainPage";
 import PromoPage from "../../src/PO/PromoPage/PromoPage";
 import {qase} from "playwright-qase-reporter";
-import {STAGE_USER_ACCOUTNS, USER_ACCOUTNS} from "../../src/Data/UserAccounts";
+import {STAGE_USER_ACCOUTNS } from "../../src/Data/UserAccounts";
 
 
 const locales: object = {
@@ -17,7 +17,7 @@ const locales: object = {
 
 const promoTournTitle: object = {
     EN: {
-        promo: 'NEW YEAR PARTY',
+        promo: '',
         tourn: 'HOLIDAY SPIN MANIA TOURNAMENT',
         vip: ''
     },
@@ -25,17 +25,17 @@ const promoTournTitle: object = {
     'EN-NZ': 'EN',
     'CA': 'EN',
     DE: {
-        promo: 'NEUJAHRSPARTY',
+        promo: '',
         tourn: 'HOLIDAY SPIN MANIA-TURNIER',
         vip: ''
     },
     'FR-CA': {
-        promo: 'FÊTE DU NOUVEL AN',
+        promo: '',
         tourn: 'TOURNOI FESTIF DE LA MANIE DES TOURS',
         vip: ''
     },
     NO: {
-        promo: 'NYTTÅRSFEST',
+        promo: '',
         tourn: 'HOLIDAY SPIN MANIA-TURNERING',
         vip: ''
     }
@@ -95,6 +95,7 @@ test.describe('Check unpublish on the main page', () => {
                     ${tournamentMainText}\n\n
                     ${JSON.stringify(promoTitleCheck)}\n\n
                     ${JSON.stringify(tournTitleCheck)}\n\n
+                    
                 `)
 
             })

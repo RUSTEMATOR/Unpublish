@@ -22,7 +22,7 @@ export const STAGE_USER_ACCOUTNS = {
 
     King: {
         email: 'new_king@kingbilly.xyz',
-        password: 'KingBilly123!'
+        password: '193786Az()'
     }
 }
 
