@@ -1,12 +1,11 @@
 import {type Locator, Page} from "@playwright/test";
-import BasePage from "../BasePage/BasePage";
+import BasePage from "../BasePage/BasePage.js";
 
 export default class PromoPage extends BasePage{
 
     constructor(page: Page){
         super(page);
 
-        console.log('Promo Page');
     }
 
 

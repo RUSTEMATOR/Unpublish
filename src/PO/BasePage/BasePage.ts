@@ -20,8 +20,6 @@ export default class BasePage {
         this.langDropdown = page.locator('.header .select-language-icons-with-code__button')
         this.arrowMainSlider = page.locator('#arrow_main_slider_left')
         this.langItem = (langValue) => page.locator('.header .select-language-icons-with-code__item', {'hasText': `${langValue}`}).first()
-
-        console.log('Main Page');
     }
 
 

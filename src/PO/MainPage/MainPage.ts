@@ -1,5 +1,5 @@
 import {type Locator, type Page} from "@playwright/test";
-import BasePage from "../BasePage/BasePage";
+import BasePage from "../BasePage/BasePage.js";
 
 
 export default class MainPage extends BasePage {
@@ -7,7 +7,6 @@ export default class MainPage extends BasePage {
     constructor(page: Page) {
         super(page);
 
-        console.log('Main Page');
     }
 
 
@@ -40,16 +39,45 @@ export default class MainPage extends BasePage {
         })
     }
 
-    async checkMainSlider({url, lang, expectedValue}:
+    async checkMainSliderPromo({url, lang, expectedValue}:
                               {
                                   url: string, lang: string,
                                   expectedValue: string
-}): Promise<boolean> {
+}): Promise<{titleIsFound: boolean, receivedArray: Array<string>}> {
 
         await this.goTo(url)
         await this.changeLanguge(lang)
         await this.clickThroughAllBanners()
         const receivedArray = await this.getPromoMainText()
-        return await this.checkTitle({receivedArray, expectedValue})
+        const titleIsFound = await this.checkTitle({receivedArray, expectedValue})
+        return {titleIsFound, receivedArray}
+    }
+
+    async checkMainSliderTournament({url, lang, expectedValue}:
+                              {
+                                  url: string, lang: string,
+                                  expectedValue: string
+}): Promise<{titleIsFound: boolean, receivedArray: Array<string>}> {
+
+        await this.goTo(url)
+        await this.changeLanguge(lang)
+        await this.clickThroughAllBanners()
+        const receivedArray = Array.from(await this.getTournamentMainText())
+        const titleIsFound = await this.checkTitle({receivedArray, expectedValue})
+        return {titleIsFound, receivedArray}
+    }
+
+    async checkMainSliderFooterPromo({url, lang, expectedValue}:
+                              {
+                                  url: string, lang: string,
+                                  expectedValue: string
+}): Promise<{titleIsFound: boolean, receivedArray: Array<string>}> {
+
+        await this.goTo(url)
+        await this.changeLanguge(lang)
+        await this.clickThroughAllBanners()
+        const receivedArray = await this.getFooterPromoTitles()
+        const titleIsFound = await this.checkTitle({receivedArray, expectedValue})
+        return {titleIsFound, receivedArray}
     }
 }
