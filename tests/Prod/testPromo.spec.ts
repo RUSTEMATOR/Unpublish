@@ -1,20 +1,11 @@
-import {Page, test, expect} from "@playwright/test";
+import {Page, test, expect, Browser} from "@playwright/test";
 import MainPage from "../../src/PO/MainPage/MainPage.js";
-import {qase} from "playwright-qase-reporter";
-import chalk from "chalk";
+import PromoPage from "../../src/PO/PromoPage/PromoPage.js";
+import VipPage from "../../src/PO/VipPage/VipPage.js";
+import {Ilocale} from "../../src/Interfaces.js";
+import {IpromoTournTitle} from "../../src/Interfaces.js";
 import {USER_ACCOUTNS} from "../../src/Data/UserAccounts.js";
 
-
-interface Ilocale {
-    [key: string]: string
-}
-
-interface IpromoTournTitle {
-    [key: string]: {
-        promo: string,
-        tourn: string
-    }
-}
 
 const locales: Ilocale = {
     'EN-AU': 'EN-AU',
@@ -50,6 +41,21 @@ const promoTournTitle: IpromoTournTitle = {
     }
 };
 
+async function initializePages(browser: Browser, numberOfPages: number): Promise<{pages: Page[], mainPages: MainPage[]}> {
+    const ctx = await browser.newContext()
+    const  pages: Array<Page> = []
+    const mainPages: Array<MainPage> = []
+    const promoPages: Array<PromoPage> = []
+
+    for (let i = 0; i < numberOfPages; i++) {
+        const page = await ctx.newPage()
+        pages.push(page)
+        mainPages.push(new MainPage(page))
+    }
+
+    return {pages, mainPages}
+}
+
 function getPromoTournTitle(locale: string){
     //@ts-ignore
     const title = promoTournTitle[locale]
@@ -69,49 +75,55 @@ const tournamentPageLink = 'https://www.kingbillycasino.com/tournaments'
 
 
 test.describe.only('Check unpublish on the main page', () => {
-    let mainPage0: MainPage
-    let mainPage1: MainPage
-    let mainPage2: MainPage
-    let mainPage3: MainPage
-    let mainPage4: MainPage
-    let mainPage5: MainPage
-    let mainPage6: MainPage
-    let mainPage7: MainPage
-    let page: Page[] = []
-    let ctx: any
-    let pageBase: Page
-    let page1: Page
-    let page2: Page
-    let page3: Page
-    let page4: Page
-    let page5: Page
-    let page6: Page
-    let page7: Page
+    let mainPage: MainPage[]
+    let pages: Page[]
+    // let mainPage0: MainPage
+    // let mainPage1: MainPage
+    // let mainPage2: MainPage
+    // let mainPage3: MainPage
+    // let mainPage4: MainPage
+    // let mainPage5: MainPage
+    // let mainPage6: MainPage
+    // let mainPage7: MainPage
+    // let page: Page[] = []
+    // let ctx: any
+    // let pageBase: Page
+    // let page1: Page
+    // let page2: Page
+    // let page3: Page
+    // let page4: Page
+    // let page5: Page
+    // let page6: Page
+    // let page7: Page
 
 
 
         test.beforeEach(async ({browser}) => {
-            const array = [1, 2, 3]
-            ctx = await browser.newContext()
-            pageBase = await ctx.newPage()
-            page1 = await ctx.newPage()
-            page2 = await ctx.newPage()
-            page3 = await ctx.newPage()
-            page4 = await ctx.newPage()
-            page5 = await ctx.newPage()
-            page6 = await ctx.newPage()
-            page7 = await ctx.newPage()
+            const result = await initializePages(browser, 8)
+            pages = result.pages
+            mainPage = result.mainPages
 
-            mainPage0 = new MainPage(pageBase)
-            mainPage1 = new MainPage(page1)
-            mainPage2 = new MainPage(page2)
-            mainPage3 = new MainPage(page3)
-            mainPage4 = new MainPage(page4)
-            mainPage5 = new MainPage(page5)
-            mainPage6 = new MainPage(page6)
-            mainPage7 = new MainPage(page7)
+            // const array = [1, 2, 3]
+            // ctx = await browser.newContext()
+            // pageBase = await ctx.newPage()
+            // page1 = await ctx.newPage()
+            // page2 = await ctx.newPage()
+            // page3 = await ctx.newPage()
+            // page4 = await ctx.newPage()
+            // page5 = await ctx.newPage()
+            // page6 = await ctx.newPage()
+            // page7 = await ctx.newPage()
+            //
+            // mainPage0 = new MainPage(pageBase)
+            // mainPage1 = new MainPage(page1)
+            // mainPage2 = new MainPage(page2)
+            // mainPage3 = new MainPage(page3)
+            // mainPage4 = new MainPage(page4)
+            // mainPage5 = new MainPage(page5)
+            // mainPage6 = new MainPage(page6)
+            // mainPage7 = new MainPage(page7)
 
-            await mainPage0.goTo(mainPageLink)
+            await mainPage[0].goTo(mainPageLink)
 
 
 
@@ -121,21 +133,21 @@ test.describe.only('Check unpublish on the main page', () => {
         for( const [status, creds] of Object.entries(USER_ACCOUTNS))
             test(`Main Slider Promo ${status}`, async () => {
 
-                await mainPage0.logIn({email: creds.email, password: creds.password})
+                await mainPage[0].logIn({email: creds.email, password: creds.password})
 
                 const localesToTest = [
-                    { lang: 'EN', page: mainPage1, promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
-                    { lang: 'EN-AU', page: mainPage2, promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
-                    { lang: 'EN-NZ', page: mainPage3, promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
-                    { lang: 'CA', page: mainPage4, promoTitle: promoTournTitle.CA.promo, tournamentTitle: promoTournTitle.EN.tourn },
-                    { lang: 'DE', page: mainPage5, promoTitle: promoTournTitle.DE.promo, tournamentTitle: promoTournTitle.DE.tourn},
-                    { lang: 'FR', page: mainPage6, promoTitle: promoTournTitle.FR.promo, tournamentTitle: promoTournTitle.FR.tourn },
-                    { lang: 'NO', page: mainPage7, promoTitle: promoTournTitle.NO.promo, tournamentTitle: promoTournTitle.NO.tourn },
+                    { lang: 'EN', page: mainPage[1], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                    { lang: 'EN-AU', page: mainPage[2], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                    { lang: 'EN-NZ', page: mainPage[3], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                    { lang: 'CA', page: mainPage[4], promoTitle: promoTournTitle.CA.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                    { lang: 'DE', page: mainPage[5], promoTitle: promoTournTitle.DE.promo, tournamentTitle: promoTournTitle.DE.tourn},
+                    { lang: 'FR', page: mainPage[6], promoTitle: promoTournTitle.FR.promo, tournamentTitle: promoTournTitle.FR.tourn },
+                    { lang: 'NO', page: mainPage[7], promoTitle: promoTournTitle.NO.promo, tournamentTitle: promoTournTitle.NO.tourn },
                 ]
 
                 await Promise.all(
                     localesToTest.map(async  ({lang, page, promoTitle, tournamentTitle}) => {
-                        await  test.step(`Checking ${lang}`, async () => {
+                        await  test.step(`Checking ${lang} Main Page`, async () => {
                             await page.goTo(mainPageLink)
                             await page.changeLanguge(lang)
                             await page.clickThroughAllBanners()
