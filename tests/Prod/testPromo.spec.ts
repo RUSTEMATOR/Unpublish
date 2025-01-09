@@ -2,6 +2,7 @@ import {Page, test, expect} from "@playwright/test";
 import MainPage from "../../src/PO/MainPage/MainPage.js";
 import {qase} from "playwright-qase-reporter";
 import chalk from "chalk";
+import {USER_ACCOUTNS} from "../../src/Data/UserAccounts.js";
 
 
 interface Ilocale {
@@ -60,8 +61,8 @@ function getPromoTournTitle(locale: string){
     return title
 }
 
-const email = 'samoilenkofluttershy@gmail.com'
-const password = '193786Az()'
+// const email = 'samoilenkofluttershy@gmail.com'
+// const password = '193786Az()'
 const mainPageLink = 'https://www.kingbillycasino.com/'
 const promoPageLink = 'https://www.kingbillycasino.com/promotions'
 const tournamentPageLink = 'https://www.kingbillycasino.com/tournaments'
@@ -111,14 +112,16 @@ test.describe.only('Check unpublish on the main page', () => {
             mainPage7 = new MainPage(page7)
 
             await mainPage0.goTo(mainPageLink)
-            await mainPage0.logIn({email: email, password: password})
+
 
 
         })
 
 
+        for( const [status, creds] of Object.entries(USER_ACCOUTNS))
+            test(`Main Slider Promo ${status}`, async () => {
 
-            test(`Main Slider Promo`, async () => {
+                await mainPage0.logIn({email: creds.email, password: creds.password})
 
                 const localesToTest = [
                     { lang: 'EN', page: mainPage1, promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
@@ -130,124 +133,168 @@ test.describe.only('Check unpublish on the main page', () => {
                     { lang: 'NO', page: mainPage7, promoTitle: promoTournTitle.NO.promo, tournamentTitle: promoTournTitle.NO.tourn },
                 ]
 
-            await Promise.all([
-                    test.step('Main slider EN One Dep', async () => {
-                        const enTest = await mainPage1.checkMainSliderPromo({
-                            url: mainPageLink, lang: locales["EN"], expectedValue: promoTournTitle.EN.promo
-                        });
-                        console.log(chalk.green(`EN:\n ${enTest.receivedArray}`));
-                        expect.soft(enTest.titleIsFound, `${promoTournTitle.EN.promo} found on the page EN`).toEqual(true);
-                    }),
+                await Promise.all(
+                    localesToTest.map(async  ({lang, page, promoTitle, tournamentTitle}) => {
+                        await  test.step(`Checking ${lang}`, async () => {
+                            await page.goTo(mainPageLink)
+                            await page.changeLanguge(lang)
+                            await page.clickThroughAllBanners()
+                            await Promise.all([
+                                test.step(`Promo Main Slider` , async () => {
+                                    const titleIsNotFound = await page.checkPromoTourn({
+                                        promoType: "mainSlider",
+                                        lang: locales[lang],
+                                        expectedValue: promoTitle,
+                                        section: "mainSlider",
+                                        url: mainPageLink
+                                    })
+                                    expect.soft(titleIsNotFound).toEqual(true)
+                                }),
 
-                    test.step('Main slider EN-AU One Dep', async () => {
-                        const auTest = await mainPage2.checkMainSliderPromo({
-                            url: mainPageLink, lang: locales["EN-AU"], expectedValue: promoTournTitle.EN.promo
-                        });
-                        console.log(chalk.green(`AU:\n ${auTest.receivedArray}`));
-                        expect.soft(auTest.titleIsFound, `${promoTournTitle.EN.promo} found on the page EN-AU`).toEqual(true);
-                    }),
-
-                    test.step('Main slider EN-NZ One Dep', async () => {
-                        const nzTest = await mainPage3.checkMainSliderPromo({
-                            url: mainPageLink, lang: locales["EN-NZ"], expectedValue: promoTournTitle.EN.promo
-                        });
-                        console.log(chalk.green(`NZ:\n ${nzTest.receivedArray}`));
-                        expect.soft(nzTest.titleIsFound, `${promoTournTitle.EN.promo} found on the page EN-NZ`).toEqual(true);
-                    }),
-
-                    test.step('Main slider CA One Dep', async () => {
-                        const caTest = await mainPage4.checkMainSliderPromo({
-                            url: mainPageLink, lang: locales["CA"], expectedValue: promoTournTitle.CA.promo
-                        });
-                        console.log(chalk.green(`CA:\n ${caTest.receivedArray}`));
-                        expect.soft(caTest.titleIsFound, `${promoTournTitle.CA.promo} found on the page EN-CA`).toEqual(true);
-                    }),
-
-                    test.step('Main slider DE One Dep', async () => {
-                        const deTest = await mainPage5.checkMainSliderPromo({
-                            url: mainPageLink, lang: locales["DE"], expectedValue: promoTournTitle.DE.promo
-                        });
-                        console.log(chalk.green(`DE:\n ${deTest.receivedArray}`));
-                        expect.soft(deTest.titleIsFound, `${promoTournTitle.DE.promo} found on the page DE`).toEqual(true);
-                    }),
-
-                    test.step('Main slider FR-CA One Dep', async () => {
-                        const frTest = await mainPage6.checkMainSliderPromo({
-                            url: mainPageLink, lang: locales["FR"], expectedValue: promoTournTitle.FR.promo
-                        });
-                        console.log(chalk.green(`FR-CA:\n ${frTest.receivedArray}`));
-                        expect.soft(frTest.titleIsFound, `${promoTournTitle.FR.promo} found on the page FR`).toEqual(true);
-                    }),
-
-                    test.step('Main slider NO One Dep', async () => {
-                        const noTest = await mainPage7.checkMainSliderPromo({
-                            url: mainPageLink, lang: locales["NO"], expectedValue: promoTournTitle.NO.promo
-                        });
-                        console.log(chalk.green(`NO:\n ${noTest.receivedArray}`));
-                        expect.soft(noTest.titleIsFound, `${promoTournTitle.NO.promo} found on the page NO`).toEqual(true);
-                    })
-                ]);
-            });
-
-            test('Main slider tournaments', async () => {
-                await Promise.all([
-                    test.step('Main slider EN Tournament', async () => {
-                        const enTest = await mainPage1.checkMainSliderTournament({
-                            url: mainPageLink, lang: locales["EN"], expectedValue: promoTournTitle.EN.tourn
+                                test.step(`Promo Main Footer` , async () => {
+                                    const titleIsNotFound = await page.checkPromoTourn({
+                                        promoType: "footer",
+                                        lang: locales[lang],
+                                        expectedValue: promoTitle,
+                                        section: "footer",
+                                        url: mainPageLink
+                                    })
+                                    expect.soft(titleIsNotFound).toEqual(true)
+                                }),
+                               test.step(`Tournament Main Slider` , async () => {
+                                   const titleIsNotFound = await page.checkPromoTourn({
+                                       promoType: "tournament",
+                                       lang: locales[lang],
+                                       expectedValue: tournamentTitle,
+                                       section: "tournament",
+                                       url: mainPageLink
+                                   })
+                                   expect.soft(titleIsNotFound).toEqual(true)
+                               })
+                            ])
                         })
-                        console.log(chalk.green(`EN:\n ${enTest.receivedArray}`))
-                        expect.soft(enTest.titleIsFound, `${promoTournTitle.EN.tourn} found on the page EN`).toEqual(true)
-                    }),
+                    }))
+                })
 
-                    test.step('Main slider EN-AU Tournament', async () => {
-                        const auTest = await mainPage2.checkMainSliderTournament({
-                            url: mainPageLink, lang: locales["EN-AU"], expectedValue: promoTournTitle.EN.tourn
-                        })
-                        console.log(chalk.green(`AU:\n ${auTest.receivedArray}`))
-                        expect.soft(auTest.titleIsFound, `${promoTournTitle.EN.tourn} found on the page AU`).toEqual(true)
-                    }),
 
-                    test.step('Main slider EN-NZ Tournament', async () => {
-                        const nzTest = await mainPage3.checkMainSliderTournament({
-                            url: mainPageLink, lang: locales["EN-NZ"], expectedValue: promoTournTitle.EN.tourn
-                        })
-                        console.log(chalk.green(`NZ:\n ${nzTest.receivedArray}`))
-                        expect.soft(nzTest.titleIsFound, `${promoTournTitle.EN.tourn} found on the page NZ`).toEqual(true)
-                    }),
-
-                    test.step('Main slider CA Tournament', async () => {
-                        const caTest = await mainPage4.checkMainSliderTournament({
-                            url: mainPageLink, lang: locales["CA"], expectedValue: promoTournTitle.CA.tourn
-                        })
-                        console.log(chalk.green(`CA:\n ${caTest.receivedArray}`))
-                        expect.soft(caTest.titleIsFound, `${promoTournTitle.EN.tourn} found on the page CA`).toEqual(true)
-                    }),
-
-                    test.step('Main slider DE Tournament', async () => {
-                        const deTest = await mainPage5.checkMainSliderTournament({
-                            url: mainPageLink, lang: locales["DE"], expectedValue: promoTournTitle.DE.tourn
-                        })
-                        console.log(chalk.green(`DE:\n ${deTest.receivedArray}`))
-                        expect.soft(deTest.titleIsFound, `${promoTournTitle.DE.tourn} found on the page DE`).toEqual(true)
-                    }),
-
-                    test.step('Main slider FR-CA Tournament', async () => {
-                        const frTest = await mainPage6.checkMainSliderTournament({
-                            url: mainPageLink, lang: locales["FR"], expectedValue: promoTournTitle.FR.tourn
-                        })
-                        console.log(chalk.green(`FR:\n ${frTest.receivedArray}`))
-                        expect.soft(frTest.titleIsFound, `${promoTournTitle.FR.tourn} found on the page FR`).toEqual(true)
-                    }),
-
-                    test.step('Main slider NO Tournament', async () => {
-                        const noTest = await mainPage7.checkMainSliderTournament({
-                            url: mainPageLink, lang: locales["NO"], expectedValue: promoTournTitle.NO.tourn
-                        })
-                        console.log(chalk.green(`EN:\n ${noTest.receivedArray}`))
-                        expect.soft(noTest.titleIsFound, `${promoTournTitle.NO.tourn} found on the page NO`).toEqual(true)
-                    })
-                ])
-            })
+           // await Promise.all([
+           //          test.step('Main slider EN One Dep', async () => {
+           //              const enTest = await mainPage1.checkMainSliderPromo({
+           //                  url: mainPageLink, lang: locales["EN"], expectedValue: promoTournTitle.EN.promo
+           //              });
+           //              console.log(chalk.green(`EN:\n ${enTest.receivedArray}`));
+           //              expect.soft(enTest.titleIsFound, `${promoTournTitle.EN.promo} found on the page EN`).toEqual(true);
+           //          }),
+           //
+           //          test.step('Main slider EN-AU One Dep', async () => {
+           //              const auTest = await mainPage2.checkMainSliderPromo({
+           //                  url: mainPageLink, lang: locales["EN-AU"], expectedValue: promoTournTitle.EN.promo
+           //              });
+           //              console.log(chalk.green(`AU:\n ${auTest.receivedArray}`));
+           //              expect.soft(auTest.titleIsFound, `${promoTournTitle.EN.promo} found on the page EN-AU`).toEqual(true);
+           //          }),
+           //
+           //          test.step('Main slider EN-NZ One Dep', async () => {
+           //              const nzTest = await mainPage3.checkMainSliderPromo({
+           //                  url: mainPageLink, lang: locales["EN-NZ"], expectedValue: promoTournTitle.EN.promo
+           //              });
+           //              console.log(chalk.green(`NZ:\n ${nzTest.receivedArray}`));
+           //              expect.soft(nzTest.titleIsFound, `${promoTournTitle.EN.promo} found on the page EN-NZ`).toEqual(true);
+           //          }),
+           //
+           //          test.step('Main slider CA One Dep', async () => {
+           //              const caTest = await mainPage4.checkMainSliderPromo({
+           //                  url: mainPageLink, lang: locales["CA"], expectedValue: promoTournTitle.CA.promo
+           //              });
+           //              console.log(chalk.green(`CA:\n ${caTest.receivedArray}`));
+           //              expect.soft(caTest.titleIsFound, `${promoTournTitle.CA.promo} found on the page EN-CA`).toEqual(true);
+           //          }),
+           //
+           //          test.step('Main slider DE One Dep', async () => {
+           //              const deTest = await mainPage5.checkMainSliderPromo({
+           //                  url: mainPageLink, lang: locales["DE"], expectedValue: promoTournTitle.DE.promo
+           //              });
+           //              console.log(chalk.green(`DE:\n ${deTest.receivedArray}`));
+           //              expect.soft(deTest.titleIsFound, `${promoTournTitle.DE.promo} found on the page DE`).toEqual(true);
+           //          }),
+           //
+           //          test.step('Main slider FR-CA One Dep', async () => {
+           //              const frTest = await mainPage6.checkMainSliderPromo({
+           //                  url: mainPageLink, lang: locales["FR"], expectedValue: promoTournTitle.FR.promo
+           //              });
+           //              console.log(chalk.green(`FR-CA:\n ${frTest.receivedArray}`));
+           //              expect.soft(frTest.titleIsFound, `${promoTournTitle.FR.promo} found on the page FR`).toEqual(true);
+           //          }),
+           //
+           //          test.step('Main slider NO One Dep', async () => {
+           //              const noTest = await mainPage7.checkMainSliderPromo({
+           //                  url: mainPageLink, lang: locales["NO"], expectedValue: promoTournTitle.NO.promo
+           //              });
+           //              console.log(chalk.green(`NO:\n ${noTest.receivedArray}`));
+           //              expect.soft(noTest.titleIsFound, `${promoTournTitle.NO.promo} found on the page NO`).toEqual(true);
+           //          })
+           //      ]);
+           //  });
+           //
+           //  test('Main slider tournaments', async () => {
+           //      await Promise.all([
+           //          test.step('Main slider EN Tournament', async () => {
+           //              const enTest = await mainPage1.checkMainSliderTournament({
+           //                  url: mainPageLink, lang: locales["EN"], expectedValue: promoTournTitle.EN.tourn
+           //              })
+           //              console.log(chalk.green(`EN:\n ${enTest.receivedArray}`))
+           //              expect.soft(enTest.titleIsFound, `${promoTournTitle.EN.tourn} found on the page EN`).toEqual(true)
+           //          }),
+           //
+           //          test.step('Main slider EN-AU Tournament', async () => {
+           //              const auTest = await mainPage2.checkMainSliderTournament({
+           //                  url: mainPageLink, lang: locales["EN-AU"], expectedValue: promoTournTitle.EN.tourn
+           //              })
+           //              console.log(chalk.green(`AU:\n ${auTest.receivedArray}`))
+           //              expect.soft(auTest.titleIsFound, `${promoTournTitle.EN.tourn} found on the page AU`).toEqual(true)
+           //          }),
+           //
+           //          test.step('Main slider EN-NZ Tournament', async () => {
+           //              const nzTest = await mainPage3.checkMainSliderTournament({
+           //                  url: mainPageLink, lang: locales["EN-NZ"], expectedValue: promoTournTitle.EN.tourn
+           //              })
+           //              console.log(chalk.green(`NZ:\n ${nzTest.receivedArray}`))
+           //              expect.soft(nzTest.titleIsFound, `${promoTournTitle.EN.tourn} found on the page NZ`).toEqual(true)
+           //          }),
+           //
+           //          test.step('Main slider CA Tournament', async () => {
+           //              const caTest = await mainPage4.checkMainSliderTournament({
+           //                  url: mainPageLink, lang: locales["CA"], expectedValue: promoTournTitle.CA.tourn
+           //              })
+           //              console.log(chalk.green(`CA:\n ${caTest.receivedArray}`))
+           //              expect.soft(caTest.titleIsFound, `${promoTournTitle.EN.tourn} found on the page CA`).toEqual(true)
+           //          }),
+           //
+           //          test.step('Main slider DE Tournament', async () => {
+           //              const deTest = await mainPage5.checkMainSliderTournament({
+           //                  url: mainPageLink, lang: locales["DE"], expectedValue: promoTournTitle.DE.tourn
+           //              })
+           //              console.log(chalk.green(`DE:\n ${deTest.receivedArray}`))
+           //              expect.soft(deTest.titleIsFound, `${promoTournTitle.DE.tourn} found on the page DE`).toEqual(true)
+           //          }),
+           //
+           //          test.step('Main slider FR-CA Tournament', async () => {
+           //              const frTest = await mainPage6.checkMainSliderTournament({
+           //                  url: mainPageLink, lang: locales["FR"], expectedValue: promoTournTitle.FR.tourn
+           //              })
+           //              console.log(chalk.green(`FR:\n ${frTest.receivedArray}`))
+           //              expect.soft(frTest.titleIsFound, `${promoTournTitle.FR.tourn} found on the page FR`).toEqual(true)
+           //          }),
+           //
+           //          test.step('Main slider NO Tournament', async () => {
+           //              const noTest = await mainPage7.checkMainSliderTournament({
+           //                  url: mainPageLink, lang: locales["NO"], expectedValue: promoTournTitle.NO.tourn
+           //              })
+           //              console.log(chalk.green(`EN:\n ${noTest.receivedArray}`))
+           //              expect.soft(noTest.titleIsFound, `${promoTournTitle.NO.tourn} found on the page NO`).toEqual(true)
+           //          })
+           //      ])
+           //  })
 
         //     test(`Footer Slider Promo ${status} ${locale}`, async ({page}) => {
         //         tag: "@promo"

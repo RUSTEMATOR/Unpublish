@@ -1,4 +1,4 @@
-import {type Locator, type Page} from "@playwright/test";
+import {type Locator, type Page, expect} from "@playwright/test";
 import BasePage from "../BasePage/BasePage.js";
 import chalk from "chalk";
 
@@ -18,9 +18,11 @@ export default class MainPage extends BasePage {
             return number
         })
 
+        console.log(numberOfBanners)
+
         for (let i = 0; i < numberOfBanners; i++) {
             await this.arrowMainSlider.click()
-            await this.page.waitForTimeout(1000)
+            await this.page.waitForTimeout(100)
         }
     }
 
@@ -44,65 +46,73 @@ export default class MainPage extends BasePage {
                               {
                                   url: string, lang: string,
                                   expectedValue: string
-}): Promise<{titleIsFound: boolean, receivedArray: Array<string>}> {
+}): Promise<{titleIsNotFound: boolean, receivedArray: Array<string>}> {
 
         await this.goTo(url)
         await this.changeLanguge(lang)
         await this.clickThroughAllBanners()
         const receivedArray = await this.getPromoMainText()
-        const titleIsFound = await this.checkTitle({receivedArray, expectedValue})
-        return {titleIsFound, receivedArray}
+        const titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
+        return {titleIsNotFound, receivedArray}
     }
 
     async checkMainSliderTournament({url, lang, expectedValue}:
                               {
                                   url: string, lang: string,
                                   expectedValue: string
-}): Promise<{titleIsFound: boolean, receivedArray: Array<string>}> {
+}): Promise<{titleIsNotFound: boolean, receivedArray: Array<string>}> {
 
         await this.goTo(url)
         await this.changeLanguge(lang)
         await this.clickThroughAllBanners()
         const receivedArray = Array.from(await this.getTournamentMainText())
-        const titleIsFound = await this.checkTitle({receivedArray, expectedValue})
-        return {titleIsFound, receivedArray}
+        const titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
+        return {titleIsNotFound, receivedArray}
     }
 
     async checkMainSliderFooterPromo({url, lang, expectedValue}:
                               {
                                   url: string, lang: string,
                                   expectedValue: string
-}): Promise<{titleIsFound: boolean, receivedArray: Array<string>}> {
+}): Promise<{titleIsNotFound: boolean, receivedArray: Array<string>}> {
 
         await this.goTo(url)
         await this.changeLanguge(lang)
         await this.clickThroughAllBanners()
         const receivedArray = await this.getFooterPromoTitles()
-        const titleIsFound = await this.checkTitle({receivedArray, expectedValue})
-        return {titleIsFound, receivedArray}
+        const titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
+        return {titleIsNotFound, receivedArray}
     }
 
 
-    async checkPromo(
-        {promoType, lang, page, expectedValue, section, url}:
-            {promoType: string, lang: string, page: Page, expectedValue: string, section: string, url: string}): Promise<{titleIsFound: boolean, receivedArray: Array<string>}> {
-                let receivedArray
-                let titleIsFound
+    async checkPromoTourn(
+        {promoType, lang, expectedValue, section, url}:
+            {promoType: 'mainSlider' | 'footer' | 'tournament', lang: string, expectedValue: string, section: 'mainSlider' | 'footer' | 'tournament', url: string}): Promise<boolean> {
+        let receivedArray
+        let titleIsNotFound
 
-                await this.goTo(url)
-                await this.changeLanguge(lang)
-                await this.clickThroughAllBanners()
-                if (section === 'mainSlider'){
-                    receivedArray = await this.getPromoMainText()
-                    titleIsFound = await this.checkTitle({receivedArray, expectedValue})
-                    console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
-                    return {titleIsFound, receivedArray}
-                } else if (section === 'footer'){
-                    receivedArray = await this.getFooterPromoTitles()
-                    titleIsFound = await this.checkTitle({receivedArray, expectedValue})
-                    console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
-                    return {titleIsFound, receivedArray}
-                }
+        if (section === 'mainSlider'){
+            receivedArray = await this.getPromoMainText()
+            titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
+            console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+
+
+        } else if (section === 'footer') {
+            receivedArray = await this.getFooterPromoTitles()
+            titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
+            console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+
+
+        } else if (section === 'tournament') {
+            receivedArray = await this.getTournamentMainText()
+            titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
+            console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+
+        } 
+        else {
+            throw new Error(`Invalid section: ${section}`)
+        }
+        return titleIsNotFound
     }
 }
 

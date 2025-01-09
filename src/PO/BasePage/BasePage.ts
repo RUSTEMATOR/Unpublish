@@ -60,9 +60,12 @@ export default class BasePage {
     receivedArray: Array<string>,
     expectedValue: string
 }): Promise<boolean> {
-
+        console.log(`Checking length ${receivedArray.length}`)
     if (receivedArray.includes(expectedValue.toUpperCase())) {
        return false
+    }
+    if (receivedArray.length === 0) {
+        return false
     } else {
         const message = `No ${expectedValue} found`;
         console.log(message);
@@ -79,7 +82,7 @@ export default class BasePage {
                  if (array.length > 0) {
                     return array
                 }  else {
-                    throw new Error("Array is empty")
+                    // throw new Error("Array is empty")
                 }
             }
             return []
