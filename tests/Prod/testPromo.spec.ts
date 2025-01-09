@@ -17,22 +17,22 @@ const locales: object = {
 
 const promoTournTitle: object = {
     EN: {
-        promo: 'NEW YEAR PARTY',
-        tourn: '',
+        promo: '',
+        tourn: 'HOLIDAY SPIN MANIA TOURNAMENT',
     },
     'EN-AU': 'EN',
     'EN-NZ': 'EN',
     'CA': 'EN',
     DE: {
-        promo: 'NEUJAHRSPARTY',
-        tourn: '',
+        promo: '',
+        tourn: 'HOLIDAY SPIN MANIA-TURNIER',
     },
     'FR-CA': {
-        promo: 'FÊTE DU NOUVEL AN',
+        promo: 'TOURNOI FESTIF DE LA MANIE DES TOURS',
         tourn: '',
     },
     NO: {
-        promo: 'NYTTÅRSFEST',
+        promo: 'HOLIDAY SPIN MANIA-TURNERING',
         tourn: '',
     }
 };
