@@ -49,7 +49,6 @@ const promoTournTitle: IpromoTournTitle = {
     }
 };
 
-
 function getPromoTournTitle(locale: string){
     //@ts-ignore
     const title = promoTournTitle[locale]
@@ -59,7 +58,6 @@ function getPromoTournTitle(locale: string){
 
     }
     return title
-
 }
 
 const email = 'samoilenkofluttershy@gmail.com'
@@ -121,6 +119,17 @@ test.describe.only('Check unpublish on the main page', () => {
 
 
             test(`Main Slider Promo`, async () => {
+
+                const localesToTest = [
+                    { lang: 'EN', page: mainPage1, promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                    { lang: 'EN-AU', page: mainPage2, promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                    { lang: 'EN-NZ', page: mainPage3, promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                    { lang: 'CA', page: mainPage4, promoTitle: promoTournTitle.CA.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                    { lang: 'DE', page: mainPage5, promoTitle: promoTournTitle.DE.promo, tournamentTitle: promoTournTitle.DE.tourn},
+                    { lang: 'FR', page: mainPage6, promoTitle: promoTournTitle.FR.promo, tournamentTitle: promoTournTitle.FR.tourn },
+                    { lang: 'NO', page: mainPage7, promoTitle: promoTournTitle.NO.promo, tournamentTitle: promoTournTitle.NO.tourn },
+                ]
+
             await Promise.all([
                     test.step('Main slider EN One Dep', async () => {
                         const enTest = await mainPage1.checkMainSliderPromo({

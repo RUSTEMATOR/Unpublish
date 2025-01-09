@@ -1,5 +1,6 @@
 import {type Locator, type Page} from "@playwright/test";
 import BasePage from "../BasePage/BasePage.js";
+import chalk from "chalk";
 
 
 export default class MainPage extends BasePage {
@@ -80,4 +81,30 @@ export default class MainPage extends BasePage {
         const titleIsFound = await this.checkTitle({receivedArray, expectedValue})
         return {titleIsFound, receivedArray}
     }
+
+
+    async checkPromo(
+        {promoType, lang, page, expectedValue, section, url}:
+            {promoType: string, lang: string, page: Page, expectedValue: string, section: string, url: string}): Promise<{titleIsFound: boolean, receivedArray: Array<string>}> {
+                let receivedArray
+                let titleIsFound
+
+                await this.goTo(url)
+                await this.changeLanguge(lang)
+                await this.clickThroughAllBanners()
+                if (section === 'mainSlider'){
+                    receivedArray = await this.getPromoMainText()
+                    titleIsFound = await this.checkTitle({receivedArray, expectedValue})
+                    console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+                    return {titleIsFound, receivedArray}
+                } else if (section === 'footer'){
+                    receivedArray = await this.getFooterPromoTitles()
+                    titleIsFound = await this.checkTitle({receivedArray, expectedValue})
+                    console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+                    return {titleIsFound, receivedArray}
+                }
+    }
 }
+
+
+
