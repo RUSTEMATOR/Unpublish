@@ -5,6 +5,7 @@ import VipPage from "../../src/PO/VipPage/VipPage.js";
 import {Ilocale} from "../../src/Interfaces.js";
 import {IpromoTournTitle} from "../../src/Interfaces.js";
 import {USER_ACCOUTNS} from "../../src/Data/UserAccounts.js";
+import chalk from "chalk";
 
 
 const locales: Ilocale = {
@@ -28,7 +29,7 @@ const promoTournTitle: IpromoTournTitle = {
     'EN-NZ': commonPromoTournTitle,
     'CA': commonPromoTournTitle,
     DE: {
-        promo: 'roflan gauda',
+        promo: 'Drehen Sie Ihre Woche',
         tourn: 'HOLIDAY SPIN MANIA-TURNIER',
     },
     'FR': {
@@ -41,9 +42,9 @@ const promoTournTitle: IpromoTournTitle = {
     }
 };
 
-async function initializePages(browser: Browser, numberOfPages: number): Promise<{pages: Page[], mainPages: MainPage[]}> {
+async function initializePages(browser: Browser, numberOfPages: number): Promise<{pages: Page[], mainPages: MainPage[], promoPages: PromoPage[]}> {
     const ctx = await browser.newContext()
-    const  pages: Array<Page> = []
+    const pages: Array<Page> = []
     const mainPages: Array<MainPage> = []
     const promoPages: Array<PromoPage> = []
 
@@ -51,9 +52,10 @@ async function initializePages(browser: Browser, numberOfPages: number): Promise
         const page = await ctx.newPage()
         pages.push(page)
         mainPages.push(new MainPage(page))
+        promoPages.push(new PromoPage(page))
     }
 
-    return {pages, mainPages}
+    return {pages, mainPages, promoPages}
 }
 
 function getPromoTournTitle(locale: string){
@@ -67,126 +69,228 @@ function getPromoTournTitle(locale: string){
     return title
 }
 
-// const email = 'samoilenkofluttershy@gmail.com'
-// const password = '193786Az()'
+ function logError(context: string, message: string, expected?: string, actual?: boolean){
+     console.error(chalk.bgRed.whiteBright(`\n[ERROR] ${context}`))
+     console.error(chalk.red(`Message: ${message}`))
+
+     if(expected !== undefined){
+         console.error(chalk.yellow(`Expected: ${expected}`))
+     }
+
+     if(actual !== undefined){
+         console.error(chalk.green(`Actual: ${actual}`))
+     }
+
+     console.error(`\n`)
+    }
+
+let errorSummary: Array<string> = []
+
 const mainPageLink = 'https://www.kingbillycasino.com/'
 const promoPageLink = 'https://www.kingbillycasino.com/promotions'
 const tournamentPageLink = 'https://www.kingbillycasino.com/tournaments'
 
 
 test.describe.only('Check unpublish on the main page', () => {
-    let mainPage: MainPage[]
-    let pages: Page[]
-    // let mainPage0: MainPage
-    // let mainPage1: MainPage
-    // let mainPage2: MainPage
-    // let mainPage3: MainPage
-    // let mainPage4: MainPage
-    // let mainPage5: MainPage
-    // let mainPage6: MainPage
-    // let mainPage7: MainPage
-    // let page: Page[] = []
-    // let ctx: any
-    // let pageBase: Page
-    // let page1: Page
-    // let page2: Page
-    // let page3: Page
-    // let page4: Page
-    // let page5: Page
-    // let page6: Page
-    // let page7: Page
+    let pages: Page[];
+    let mainPages: MainPage[];
+    let promoPages: PromoPage[];
 
+    test.beforeEach(async ({browser}) => {
+        // Initialize pages and page objects
+        const result = await initializePages(browser, 15);
+        pages = result.pages;
+        mainPages = result.mainPages;
+        promoPages = result.promoPages;
 
+        // Navigate to the main and promo pages
+        await mainPages[0].goTo(mainPageLink);
 
-        test.beforeEach(async ({browser}) => {
-            const result = await initializePages(browser, 8)
-            pages = result.pages
-            mainPage = result.mainPages
+    });
 
-            // const array = [1, 2, 3]
-            // ctx = await browser.newContext()
-            // pageBase = await ctx.newPage()
-            // page1 = await ctx.newPage()
-            // page2 = await ctx.newPage()
-            // page3 = await ctx.newPage()
-            // page4 = await ctx.newPage()
-            // page5 = await ctx.newPage()
-            // page6 = await ctx.newPage()
-            // page7 = await ctx.newPage()
-            //
-            // mainPage0 = new MainPage(pageBase)
-            // mainPage1 = new MainPage(page1)
-            // mainPage2 = new MainPage(page2)
-            // mainPage3 = new MainPage(page3)
-            // mainPage4 = new MainPage(page4)
-            // mainPage5 = new MainPage(page5)
-            // mainPage6 = new MainPage(page6)
-            // mainPage7 = new MainPage(page7)
+    for (const [status, creds] of Object.entries(USER_ACCOUTNS)) {
+        test(`Main Slider Promo ${status}`, async () => {
+            // Log in with the current account
+            await mainPages[0].logIn({email: creds.email, password: creds.password});
 
-            await mainPage[0].goTo(mainPageLink)
+            const localesToTestMain = [
+                { lang: 'EN', page: mainPages[1], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                { lang: 'EN-AU', page: mainPages[2], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                { lang: 'EN-NZ', page: mainPages[3], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                { lang: 'CA', page: mainPages[4], promoTitle: promoTournTitle.CA.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                { lang: 'DE', page: mainPages[5], promoTitle: promoTournTitle.DE.promo, tournamentTitle: promoTournTitle.DE.tourn },
+                { lang: 'FR', page: mainPages[6], promoTitle: promoTournTitle.FR.promo, tournamentTitle: promoTournTitle.FR.tourn },
+                { lang: 'NO', page: mainPages[7], promoTitle: promoTournTitle.NO.promo, tournamentTitle: promoTournTitle.NO.tourn },
+            ];
 
+            const localesToTestPromo = [
+                { lang: 'EN', page: promoPages[8], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                { lang: 'EN-AU', page: promoPages[9], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                { lang: 'EN-NZ', page: promoPages[10], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                { lang: 'CA', page: promoPages[11], promoTitle: promoTournTitle.CA.promo, tournamentTitle: promoTournTitle.EN.tourn },
+                { lang: 'DE', page: promoPages[12], promoTitle: promoTournTitle.DE.promo, tournamentTitle: promoTournTitle.DE.tourn },
+                { lang: 'FR', page: promoPages[13], promoTitle: promoTournTitle.FR.promo, tournamentTitle: promoTournTitle.FR.tourn },
+                { lang: 'NO', page: promoPages[14], promoTitle: promoTournTitle.NO.promo, tournamentTitle: promoTournTitle.NO.tourn },
+            ];
 
+            const allTests = [
+                ...localesToTestMain.map(async ({lang, page, promoTitle, tournamentTitle}) => {
+                    await test.step(`Checking ${lang} Main Page`, async () => {
+                        await page.waitForTimeout(4000)
+                        await page.goTo(mainPageLink);
+                        await page.changeLanguge(lang);
+                        await page.clickThroughAllBanners();
 
-        })
+                        await Promise.all([
+                            test.step('Promo Main Slider', async () => {
+                                console.log(chalk.yellow(`Checking Promo Main Slider for ${lang}`))
+                                const titleIsNotFound = await page.checkPromoTourn({
+                                    promoType: 'mainSlider',
+                                    lang: locales[lang],
+                                    expectedValue: promoTitle,
+                                    section: 'mainSlider',
+                                });
 
+                                if(!titleIsNotFound){
+                                    logError(
+                                        `Promo Main Slider - ${lang}`,
+                                        `Expected promo title "${promoTitle}" is found`,
+                                        promoTitle,
+                                        titleIsNotFound
+                                    )
+                                    errorSummary.push(`Promo Main Slider - ${lang}: ${promoTitle} is found`)
+                                } else {
+                                    console.log(`Promo Main Slider check passed for ${lang}`)
+                                }
 
-        for( const [status, creds] of Object.entries(USER_ACCOUTNS))
-            test(`Main Slider Promo ${status}`, async () => {
+                                expect.soft(titleIsNotFound).toEqual(true);
+                            }),
 
-                await mainPage[0].logIn({email: creds.email, password: creds.password})
+                            test.step('Promo Main Footer', async () => {
+                                const titleIsNotFound = await page.checkPromoTourn({
+                                    promoType: 'footer',
+                                    lang: locales[lang],
+                                    expectedValue: promoTitle,
+                                    section: 'footer',
+                                });
 
-                const localesToTest = [
-                    { lang: 'EN', page: mainPage[1], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
-                    { lang: 'EN-AU', page: mainPage[2], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
-                    { lang: 'EN-NZ', page: mainPage[3], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn },
-                    { lang: 'CA', page: mainPage[4], promoTitle: promoTournTitle.CA.promo, tournamentTitle: promoTournTitle.EN.tourn },
-                    { lang: 'DE', page: mainPage[5], promoTitle: promoTournTitle.DE.promo, tournamentTitle: promoTournTitle.DE.tourn},
-                    { lang: 'FR', page: mainPage[6], promoTitle: promoTournTitle.FR.promo, tournamentTitle: promoTournTitle.FR.tourn },
-                    { lang: 'NO', page: mainPage[7], promoTitle: promoTournTitle.NO.promo, tournamentTitle: promoTournTitle.NO.tourn },
-                ]
+                                if(!titleIsNotFound){
+                                    logError(
+                                        `Promo Footer - ${lang}`,
+                                        `Expected promo title "${promoTitle}" is found`,
+                                        promoTitle,
+                                        titleIsNotFound
+                                    )
+                                    errorSummary.push(`Promo Footer - ${lang}: ${promoTitle} is found`)
+                                } else {
+                                    console.log(`Promo Footer check passed for ${lang}`)
+                                }
 
-                await Promise.all(
-                    localesToTest.map(async  ({lang, page, promoTitle, tournamentTitle}) => {
-                        await  test.step(`Checking ${lang} Main Page`, async () => {
-                            await page.goTo(mainPageLink)
-                            await page.changeLanguge(lang)
-                            await page.clickThroughAllBanners()
-                            await Promise.all([
-                                test.step(`Promo Main Slider` , async () => {
-                                    const titleIsNotFound = await page.checkPromoTourn({
-                                        promoType: "mainSlider",
-                                        lang: locales[lang],
-                                        expectedValue: promoTitle,
-                                        section: "mainSlider",
-                                        url: mainPageLink
-                                    })
-                                    expect.soft(titleIsNotFound).toEqual(true)
-                                }),
+                                expect.soft(titleIsNotFound).toEqual(true);
+                            }),
 
-                                test.step(`Promo Main Footer` , async () => {
-                                    const titleIsNotFound = await page.checkPromoTourn({
-                                        promoType: "footer",
-                                        lang: locales[lang],
-                                        expectedValue: promoTitle,
-                                        section: "footer",
-                                        url: mainPageLink
-                                    })
-                                    expect.soft(titleIsNotFound).toEqual(true)
-                                }),
-                               test.step(`Tournament Main Slider` , async () => {
-                                   const titleIsNotFound = await page.checkPromoTourn({
-                                       promoType: "tournament",
-                                       lang: locales[lang],
-                                       expectedValue: tournamentTitle,
-                                       section: "tournament",
-                                       url: mainPageLink
-                                   })
-                                   expect.soft(titleIsNotFound).toEqual(true)
-                               })
-                            ])
-                        })
-                    }))
+                            test.step('Tournament Main Slider', async () => {
+                                const titleIsNotFound = await page.checkPromoTourn({
+                                    promoType: 'tournament',
+                                    lang: locales[lang],
+                                    expectedValue: tournamentTitle,
+                                    section: 'tournament',
+                                });
+
+                                 if(!titleIsNotFound){
+                                    logError(
+                                        `Tournament Main Slider - ${lang}`,
+                                        `Expected promo title "${promoTitle}" is found`,
+                                        promoTitle,
+                                        titleIsNotFound
+                                    )
+                                    errorSummary.push(`Tournament Main Slider - ${lang}: ${promoTitle} is found`)
+                                } else {
+                                    console.log(`Tournament Main Slider check passed for ${lang}`)
+                                }
+
+                                expect.soft(titleIsNotFound).toEqual(true);
+                            })
+                        ])
+                    })
+                }),
+
+                ...localesToTestPromo.map(async ({lang, page, promoTitle, tournamentTitle}) => {
+                    await test.step(`Checking ${lang} Promo Page`, async () => {
+                        await page.goTo(promoPageLink);
+                        await page.waitForTimeout(2000)
+                        await page.changeLanguge(lang);
+
+                        await Promise.all([
+                            test.step('Promo Card', async () => {
+                                const titleIsNotFound = await page.checkPromoTourn({
+                                    promoType: 'promo',
+                                    lang: locales[lang],
+                                    expectedValue: promoTitle,
+                                    section: 'promo',
+                                });
+
+                                if(!titleIsNotFound){
+                                    logError(
+                                        `Promo Promo Page - ${lang}`,
+                                        `Expected promo title "${promoTitle}" is found`,
+                                        promoTitle,
+                                        titleIsNotFound
+                                    )
+                                    errorSummary.push(`Promo Promo Page - ${lang}: ${promoTitle} is found`)
+
+                                } else {
+                                    console.log(`Tournament Main Slider check passed for ${lang}`)
+                                }
+
+                                expect.soft(titleIsNotFound).toEqual(true);
+                            }),
+
+                            test.step('Tournament Promo', async () => {
+                                const titleIsNotFound = await page.checkPromoTourn({
+                                    promoType: 'tournament',
+                                    lang: locales[lang],
+                                    expectedValue: tournamentTitle,
+                                    section: 'tournament',
+                                });
+
+                                if(!titleIsNotFound){
+                                    logError(
+                                        `Promo Promo Page - ${lang}`,
+                                        `Expected promo title "${promoTitle}" is found`,
+                                        promoTitle,
+                                        titleIsNotFound
+                                    )
+                                    errorSummary.push(`Promo Promo Page - ${lang}: ${promoTitle} is found`)
+
+                                } else {
+                                    console.log(`Tournament Main Slider check passed for ${lang}`)
+                                }
+
+                                expect.soft(titleIsNotFound).toEqual(true);
+
+                            })
+                        //@ts-ignore
+                        ])
+                        await page.closePage()
+                    })
                 })
+            ]
+            await Promise.all(allTests);
+        })
+    }
+
+    test.afterAll(() => {
+        if (errorSummary.length > 0) {
+            console.log(chalk.bgRed.whiteBright('\n=== ERROR SUMMARY ==='));
+            errorSummary.forEach((error, index) => {
+                console.log(chalk.red(`${index + 1}. ${error}`));
+            });
+        } else {
+            console.log(chalk.bgGreen.whiteBright('\nAll tests passed without errors!'));
+        }
+    });
+})
 
 
            // await Promise.all([
@@ -329,7 +433,7 @@ test.describe.only('Check unpublish on the main page', () => {
         //   test.afterAll(async () => {
         //     await mainPage1.closePage()
         // })
-    })
+    // })
 
 
 test.describe('Check unpublish on the promo page', () => {

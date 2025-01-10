@@ -86,8 +86,8 @@ export default class MainPage extends BasePage {
 
 
     async checkPromoTourn(
-        {promoType, lang, expectedValue, section, url}:
-            {promoType: 'mainSlider' | 'footer' | 'tournament', lang: string, expectedValue: string, section: 'mainSlider' | 'footer' | 'tournament', url: string}): Promise<boolean> {
+        {promoType, lang, expectedValue, section}:
+            {promoType: 'mainSlider' | 'footer' | 'tournament', lang: string, expectedValue: string, section: 'mainSlider' | 'footer' | 'tournament'}): Promise<boolean> {
         let receivedArray
         let titleIsNotFound
 
@@ -112,6 +112,7 @@ export default class MainPage extends BasePage {
         else {
             throw new Error(`Invalid section: ${section}`)
         }
+        console.log(titleIsNotFound)
         return titleIsNotFound
     }
 }

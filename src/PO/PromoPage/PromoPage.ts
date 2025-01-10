@@ -1,5 +1,6 @@
 import {type Locator, Page} from "@playwright/test";
 import BasePage from "../BasePage/BasePage.js";
+import chalk from "chalk";
 
 export default class PromoPage extends BasePage{
 
@@ -37,5 +38,28 @@ export default class PromoPage extends BasePage{
             }
             return []
         })
+    }
+
+    async checkPromoTourn({promoType, lang, expectedValue, section}:
+            {promoType: 'promo' | 'tournament', lang: string, expectedValue: string, section: 'promo' | 'tournament'}): Promise<boolean> {
+        let receivedArray
+        let titleIsNotFound
+
+        switch(section) {
+            case "promo":
+                receivedArray = await this.getPromoCardText();
+                titleIsNotFound = await this.checkTitle({receivedArray, expectedValue});
+                console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`));
+                break;
+            case "tournament":
+                receivedArray = await this.getTournamentPromoText();
+                titleIsNotFound = await this.checkTitle({receivedArray, expectedValue});
+                console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`));
+                break;
+            default:
+                console.log(chalk.red(`Invalid section ${section}`));
+                return false;
+        }
+        return titleIsNotFound
     }
 }

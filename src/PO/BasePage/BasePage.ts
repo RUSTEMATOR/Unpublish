@@ -1,4 +1,5 @@
 import {type Locator, type Page} from "@playwright/test";
+import chalk from "chalk";
 
 
 export default class BasePage {
@@ -32,7 +33,6 @@ export default class BasePage {
         await this.emailField.fill(email)
         await this.passwordField.fill(password)
         await this.submitBtn.click()
-        console.log('Logged in successfully')
         await this.page.waitForSelector('#header_dep_btn')
     }
 
@@ -60,11 +60,13 @@ export default class BasePage {
     receivedArray: Array<string>,
     expectedValue: string
 }): Promise<boolean> {
-        console.log(`Checking length ${receivedArray.length}`)
+
     if (receivedArray.includes(expectedValue.toUpperCase())) {
-       return false
+        console.log(chalk.red(`${expectedValue} IS PRESENT ERROR!!!`))
+        return false
     }
     if (receivedArray.length === 0) {
+        console.log(chalk.red(`ARRAY IS EMPTY ERROR!!!!!!!`))
         return false
     } else {
         const message = `No ${expectedValue} found`;
@@ -89,6 +91,7 @@ export default class BasePage {
         })
     }
 
+
     async getFooterPromoTitles(): Promise<Array<string>> {
         return await this.page.evaluate(async () => {
             let nodeList = document.querySelectorAll('.promo-item__subtitle')
@@ -106,7 +109,6 @@ export default class BasePage {
 
     async closePage(): Promise<void> {
         await this.page.close()
-        console.log('Page closed')
     }
 
     async waitForTimeout(timeout: number): Promise<void> {
