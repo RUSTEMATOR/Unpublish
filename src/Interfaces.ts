@@ -4,7 +4,6 @@ export interface Ilocale {
 
 export interface IpromoTournTitle {
     [key: string]: {
-        promo: string,
-        tourn: string
+        [key: string]: string
     }
 }

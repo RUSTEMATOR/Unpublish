@@ -21,6 +21,7 @@ const locales: Ilocale = {
 const commonPromoTournTitle = {
     promo: 'NEW YEAR PARTY',
     tourn: '',
+    vip: 'zaza'
 };
 
 const promoTournTitle: IpromoTournTitle = {
@@ -31,14 +32,17 @@ const promoTournTitle: IpromoTournTitle = {
     DE: {
         promo: 'Drehen Sie Ihre Woche',
         tourn: 'HOLIDAY SPIN MANIA-TURNIER',
+        vip: 'zaza'
     },
     'FR': {
         promo: 'roflan gauda',
         tourn: 'TOURNOI FESTIF DE LA MANIE DES TOURS',
+        vip: 'zaza'
     },
     NO: {
         promo: 'roflan gauda',
         tourn: '',
+        vip: 'zaza'
     }
 };
 
@@ -80,9 +84,10 @@ let errorSummary: Array<string> = []
 const mainPageLink = 'https://www.kingbillycasino.com/'
 const promoPageLink = 'https://www.kingbillycasino.com/promotions'
 const tournamentPageLink = 'https://www.kingbillycasino.com/tournaments'
+const vipPromoPageLink = 'https://www.kingbillycasino.com/promotions?vip'
 
 
-test.describe.only('Check unpublish on the main page', () => {
+test.describe.only('Check unpublish', () => {
     let pages: Page[];
     let mainPages: MainPage[];
     let promoPages: PromoPage[];
@@ -339,6 +344,48 @@ test.describe.only('Check unpublish on the main page', () => {
                 })
             ]
             await Promise.all(allTests);
+        })
+
+        test.only(`Vip Promo Page ${status}`, async () => {
+
+            await promoPages[0].logIn({email: creds.email, password: creds.password});
+            await promoPages[0].closePage()
+
+            const localesToTestVipPromo = [
+                { lang: 'EN', page: promoPages[1], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn, vipPromoTitle: promoTournTitle.EN.vip },
+                { lang: 'EN-AU', page: promoPages[2], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn, vipPromoTitle: promoTournTitle.EN.vip },
+                { lang: 'EN-NZ', page: promoPages[3], promoTitle: promoTournTitle.EN.promo, tournamentTitle: promoTournTitle.EN.tourn, vipPromoTitle: promoTournTitle.EN.vip },
+                { lang: 'CA', page: promoPages[4], promoTitle: promoTournTitle.CA.promo, tournamentTitle: promoTournTitle.EN.tourn, vipPromoTitle: promoTournTitle.EN.vip },
+                { lang: 'DE', page: promoPages[5], promoTitle: promoTournTitle.DE.promo, tournamentTitle: promoTournTitle.DE.tourn, vipPromoTitle: promoTournTitle.DE.vip },
+                { lang: 'FR-CA', page: promoPages[6], promoTitle: promoTournTitle.FR.promo, tournamentTitle: promoTournTitle.FR.tourn, vipPromoTitle: promoTournTitle.FR.vip },
+                { lang: 'NO', page: promoPages[7], promoTitle: promoTournTitle.NO.promo, tournamentTitle: promoTournTitle.NO.tourn, vipPromoTitle: promoTournTitle.NO.vip },
+            ];
+
+            const allTestsVipPromo = localesToTestVipPromo.map(async ({lang , page, vipPromoTitle, tournamentTitle}) => {
+                await Promise.all([
+                    test.step('Promo Vip Page', async () => {
+                        await page.goTo(vipPromoPageLink);
+                        await page.changeLanguge(lang);
+                        const receivedArray = await page.getPromoCardText()
+                        const titleIsNotFoundVip = await page.checkTitle({
+                            receivedArray: receivedArray,
+                            expectedValue: vipPromoTitle})
+
+                        if(!titleIsNotFoundVip){
+                            logError(
+                                `VIP Promo Page - ${lang}`,
+                                `Expected promo title "${vipPromoTitle}" is found`,
+                                vipPromoTitle,
+                                titleIsNotFoundVip
+                            )
+                            errorSummary.push(`VIP Promo Page - ${lang}: ${vipPromoTitle} is found`)
+                        } else {
+                            console.log(`VIP Promo Page check passed for ${lang}`)
+                        }
+                    })
+                ])
+            })
+            await Promise.all(allTestsVipPromo)
         })
     }
 
