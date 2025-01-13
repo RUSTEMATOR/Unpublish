@@ -61,12 +61,12 @@ export default class BasePage {
     expectedValue: string
 }): Promise<boolean> {
 
-    if (receivedArray.includes(expectedValue.toUpperCase())) {
-        console.log(chalk.red(`${expectedValue} IS PRESENT ERROR!!!`))
+    if (receivedArray.includes(expectedValue.trim().toUpperCase())) {
+        console.error(chalk.red(`${expectedValue} IS PRESENT ERROR!!!`))
         return false
     }
     if (receivedArray.length === 0) {
-        console.log(chalk.red(`ARRAY IS EMPTY ERROR!!!!!!!`))
+        console.error(chalk.red(`ARRAY IS EMPTY ERROR!!!!!!!`))
         return false
     } else {
         const message = `No ${expectedValue} found`;

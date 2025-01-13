@@ -22,7 +22,7 @@ export default class MainPage extends BasePage {
 
         for (let i = 0; i < numberOfBanners; i++) {
             await this.arrowMainSlider.click()
-            await this.page.waitForTimeout(100)
+            await this.page.waitForTimeout(1000)
         }
     }
 

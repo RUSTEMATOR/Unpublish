@@ -2,11 +2,13 @@
 export const USER_ACCOUTNS = {
 
     OneDep: {
+        type: 'OneDep',
         email: 'nikita1@gmail.com',
         password: 'KingBillyCasino1@'
     },
 
     King: {
+        type: 'King',
         email: 'new_king@kingbilly.xyz',
         password: 'KingBilly123!'
     }
