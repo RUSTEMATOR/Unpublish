@@ -1,4 +1,5 @@
 import {type Locator, type Page} from "@playwright/test";
+import chalk from "chalk";
 
 
 export default class BasePage {
@@ -20,8 +21,6 @@ export default class BasePage {
         this.langDropdown = page.locator('.header .select-language-icons-with-code__button')
         this.arrowMainSlider = page.locator('#arrow_main_slider_left')
         this.langItem = (langValue) => page.locator('.header .select-language-icons-with-code__item', {'hasText': `${langValue}`}).first()
-
-        console.log('Main Page');
     }
 
 
@@ -34,23 +33,27 @@ export default class BasePage {
         await this.emailField.fill(email)
         await this.passwordField.fill(password)
         await this.submitBtn.click()
-        console.log('Logged in successfully')
         await this.page.waitForSelector('#header_dep_btn')
     }
 
-    async changeLanguge(langValue: string): Promise<void> {
-        const currentLocale = await this.langDropdown.innerText()
-
-        if (currentLocale === langValue) {
-            console.log(`Language is already set to ${langValue}`)
-            return
+    async changeLanguge(langValue: string, domain: string): Promise<void> {
+        if (domain === 'win20') {
+            console.log('Win 20 domain, no language change required')
         } else {
-            await this.langDropdown.click()
-            await this.langItem(langValue).innerText()
-            await this.langItem(langValue).click()
-            console.log(`Language changed to ${langValue}`)
-        }
+            const currentLocale = await this.langDropdown.innerText()
+            await this.page.waitForTimeout(1000)
 
+            if (currentLocale === langValue) {
+                console.log(`Language is already set to ${langValue}`)
+                return
+            } else {
+                await this.langDropdown.click()
+                await this.langItem(langValue).innerText()
+                await this.langItem(langValue).click()
+                console.log(`Language changed to ${langValue}`)
+            }
+
+        }
     }
 
 
@@ -61,14 +64,19 @@ export default class BasePage {
 }: {
     receivedArray: Array<string>,
     expectedValue: string
-}): Promise<{ message: string, error?: Error }> {
+}): Promise<boolean> {
 
-    if (receivedArray.includes(expectedValue.toUpperCase())) {
-        throw new Error(`${expectedValue} found on the page`);
+    if (receivedArray.includes(expectedValue.trim().toUpperCase())) {
+        console.error(chalk.red(`${expectedValue} IS PRESENT ERROR!!!`))
+        return false
+    }
+    if (receivedArray.length === 0) {
+        console.error(chalk.red(`ARRAY IS EMPTY ERROR!!!!!!!`))
+        return false
     } else {
         const message = `No ${expectedValue} found`;
         console.log(message);
-        return { message };
+        return true
     }
 }
 
@@ -81,12 +89,13 @@ export default class BasePage {
                  if (array.length > 0) {
                     return array
                 }  else {
-                    throw new Error("Array is empty")
+                    // throw new Error("Array is empty")
                 }
             }
             return []
         })
     }
+
 
     async getFooterPromoTitles(): Promise<Array<string>> {
         return await this.page.evaluate(async () => {
@@ -102,4 +111,13 @@ export default class BasePage {
             return []
         })
     }
+
+    async closePage(): Promise<void> {
+        await this.page.close()
+    }
+
+    async waitForTimeout(timeout: number): Promise<void> {
+        await this.page.waitForTimeout(timeout)
+    }
+
 }

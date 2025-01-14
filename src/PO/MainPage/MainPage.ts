@@ -1,5 +1,6 @@
-import {type Locator, type Page} from "@playwright/test";
-import BasePage from "../BasePage/BasePage";
+import {type Locator, type Page, expect} from "@playwright/test";
+import BasePage from "../BasePage/BasePage.js";
+import chalk from "chalk";
 
 
 export default class MainPage extends BasePage {
@@ -7,7 +8,6 @@ export default class MainPage extends BasePage {
     constructor(page: Page) {
         super(page);
 
-        console.log('Main Page');
     }
 
 
@@ -17,6 +17,8 @@ export default class MainPage extends BasePage {
             let number: number = document.querySelector('.slick-dots').childElementCount
             return number
         })
+
+        console.log(numberOfBanners)
 
         for (let i = 0; i < numberOfBanners; i++) {
             await this.arrowMainSlider.click()
@@ -33,10 +35,45 @@ export default class MainPage extends BasePage {
                 if (array.length > 0) {
                     return array
                 } else {
-                    throw new Error("Array is empty")
+                    console.error("Array is empty")
                 }
             }
             return []
         })
     }
+
+
+    async checkPromoTourn(
+        {promoType, lang, expectedValue, section}:
+            {promoType: 'mainSlider' | 'footer' | 'tournament', lang: string, expectedValue: string, section: 'mainSlider' | 'footer' | 'tournament'}): Promise<boolean> {
+        let receivedArray
+        let titleIsNotFound
+
+        if (section === 'mainSlider'){
+            receivedArray = await this.getPromoMainText()
+            titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
+            console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+
+
+        } else if (section === 'footer') {
+            receivedArray = await this.getFooterPromoTitles()
+            titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
+            console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+
+
+        } else if (section === 'tournament') {
+            receivedArray = await this.getTournamentMainText()
+            titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
+            console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+
+        } 
+        else {
+            throw new Error(`Invalid section: ${section}`)
+        }
+        console.log(titleIsNotFound)
+        return titleIsNotFound
+    }
 }
+
+
+
