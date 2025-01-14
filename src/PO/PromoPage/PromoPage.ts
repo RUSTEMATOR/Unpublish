@@ -4,9 +4,11 @@ import chalk from "chalk";
 
 export default class PromoPage extends BasePage{
 
+    vipButton: Locator
     constructor(page: Page){
         super(page);
 
+        this.vipButton = page.locator('#promo_promo_vip_tab')
     }
 
 
@@ -62,4 +64,8 @@ export default class PromoPage extends BasePage{
         }
         return titleIsNotFound
     }
+
+    get vipButtonElement(): Locator {
+            return this.vipButton
+        }
 }

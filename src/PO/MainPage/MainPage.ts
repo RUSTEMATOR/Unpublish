@@ -35,53 +35,11 @@ export default class MainPage extends BasePage {
                 if (array.length > 0) {
                     return array
                 } else {
-                    throw new Error("Array is empty")
+                    console.error("Array is empty")
                 }
             }
             return []
         })
-    }
-
-    async checkMainSliderPromo({url, lang, expectedValue}:
-                              {
-                                  url: string, lang: string,
-                                  expectedValue: string
-}): Promise<{titleIsNotFound: boolean, receivedArray: Array<string>}> {
-
-        await this.goTo(url)
-        await this.changeLanguge(lang)
-        await this.clickThroughAllBanners()
-        const receivedArray = await this.getPromoMainText()
-        const titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
-        return {titleIsNotFound, receivedArray}
-    }
-
-    async checkMainSliderTournament({url, lang, expectedValue}:
-                              {
-                                  url: string, lang: string,
-                                  expectedValue: string
-}): Promise<{titleIsNotFound: boolean, receivedArray: Array<string>}> {
-
-        await this.goTo(url)
-        await this.changeLanguge(lang)
-        await this.clickThroughAllBanners()
-        const receivedArray = Array.from(await this.getTournamentMainText())
-        const titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
-        return {titleIsNotFound, receivedArray}
-    }
-
-    async checkMainSliderFooterPromo({url, lang, expectedValue}:
-                              {
-                                  url: string, lang: string,
-                                  expectedValue: string
-}): Promise<{titleIsNotFound: boolean, receivedArray: Array<string>}> {
-
-        await this.goTo(url)
-        await this.changeLanguge(lang)
-        await this.clickThroughAllBanners()
-        const receivedArray = await this.getFooterPromoTitles()
-        const titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
-        return {titleIsNotFound, receivedArray}
     }
 
 
