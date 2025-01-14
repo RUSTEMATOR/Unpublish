@@ -1,11 +1,11 @@
-import {test} from "@playwright/test";
-import MainPage from "../../src/PO/MainPage/MainPage";
-import PromoPage from "../../src/PO/PromoPage/PromoPage";
-import {qase} from "playwright-qase-reporter";
-import {STAGE_USER_ACCOUTNS, USER_ACCOUTNS} from "../../src/Data/UserAccounts";
+import {Browser, expect, Page, test} from "@playwright/test";
+import MainPage from "../../src/PO/MainPage/MainPage.js";
+import PromoPage from "../../src/PO/PromoPage/PromoPage.js";
+import {STAGE_USER_ACCOUTNS} from "../../src/Data/UserAccounts.js";
+import chalk from "chalk";
+import {Ilocale, IpromoTournTitle} from "../../src/Interfaces.js";
 
-
-const locales: object = {
+const locales: Ilocale = {
     'EN-AU': 'EN-AU',
     'EN-NZ': 'EN-NZ',
     'CA': 'CA',
@@ -15,211 +15,484 @@ const locales: object = {
     'NO': 'NO'
 };
 
-const promoTournTitle: object = {
-    EN: {
-        promo: 'NEW YEAR PARTY',
-        tourn: 'HOLIDAY SPIN MANIA TOURNAMENT',
-        vip: ''
-    },
-    'EN-AU': 'EN',
-    'EN-NZ': 'EN',
-    'CA': 'EN',
+const commonPromoTournTitle = {
+    promo: '',
+    tourn: '',
+    vip: ``
+};
+
+const promoTournTitle: IpromoTournTitle = {
+    EN: commonPromoTournTitle,
+    'EN-AU': commonPromoTournTitle,
+    'EN-NZ': commonPromoTournTitle,
+    'CA': commonPromoTournTitle,
     DE: {
-        promo: 'NEUJAHRSPARTY',
-        tourn: 'HOLIDAY SPIN MANIA-TURNIER',
-        vip: ''
+        promo: '',
+        tourn: '',
+        vip: ``
     },
-    'FR-CA': {
-        promo: 'FÊTE DU NOUVEL AN',
-        tourn: 'TOURNOI FESTIF DE LA MANIE DES TOURS',
-        vip: ''
+    'FR': {
+        promo: '',
+        tourn: '',
+        vip: ``
     },
     NO: {
-        promo: 'NYTTÅRSFEST',
-        tourn: 'HOLIDAY SPIN MANIA-TURNERING',
-        vip: ''
+        promo: '',
+        tourn: '',
+        vip: ``
     }
 };
 
+async function initializePages(browser: Browser, numberOfPages: number): Promise<{pages: Page[], mainPages: MainPage[], promoPages: PromoPage[], tournamentPages: PromoPage[]}> {
+    const ctx = await browser.newContext()
+    const pages: Array<Page> = []
+    const mainPages: Array<MainPage> = []
+    const promoPages: Array<PromoPage> = []
+    const tournamentPages: Array<PromoPage> = []
 
-function getPromoTournTitle(locale: string){
-    //@ts-ignore
-    const title = promoTournTitle[locale]
-    if (typeof title === "string"){
-        //@ts-ignore
-        return promoTournTitle[title]
-
+    for (let i = 0; i < numberOfPages; i++) {
+        const page =  await ctx.newPage()
+        pages.push(page)
+        mainPages.push(new MainPage(page))
+        promoPages.push(new PromoPage(page))
+        tournamentPages.push(new PromoPage(page))
     }
-    return title
 
+    return {pages, mainPages, promoPages, tournamentPages}
 }
 
-const email = 'samoilenkofluttershy@gmail.com'
-const password = '193786Az.'
+ function logError(context: string, message: string, expected?: string, actual?: boolean){
+     console.error(chalk.bgRed.whiteBright(`\n[ERROR] ${context}`))
+     console.error(chalk.red(`Message: ${message}`))
+
+     if(expected !== undefined){
+         console.error(chalk.yellow(`Expected: ${expected}`))
+     }
+
+     if(actual !== undefined){
+         console.error(chalk.green(`Actual: ${actual}`))
+     }
+
+     console.error(`\n`)
+    }
+
+let errorSummary: Array<string> = []
 const mainPageLink = 'https://kingbilly-staging.casino.p6m.tech/'
 const promoPageLink = 'https://kingbilly-staging.casino.p6m.tech/promotions'
 const tournamentPageLink = 'https://kingbilly-staging.casino.p6m.tech/tournaments'
 
 
 test.describe('Check unpublish on the main page', () => {
-    let mainPage: MainPage
+    let pages: Page[];
+        let mainPages: MainPage[];
+        let promoPages: PromoPage[];
+        let tournamentPages: PromoPage[]
 
+        test.beforeEach(async ({browser}) => {
+            // Initialize pages and page objects
+            const result = await initializePages(browser, 22);
+            pages = result.pages;
+            mainPages = result.mainPages;
+            promoPages = result.promoPages;
+            tournamentPages = result.tournamentPages
 
-   test.beforeEach(async ({page}) => {
-        mainPage = new MainPage(page);
+            // Navigate to the main and promo pages
+            await mainPages[0].goTo(mainPageLink);
 
-        await mainPage.goTo(mainPageLink)
-   })
+        });
 
     for (const [status, creds] of Object.entries(STAGE_USER_ACCOUTNS)){
-        for (const locale of Object.values(locales)) {
-            const {promo, tourn} = getPromoTournTitle(locale)
+            test(`Unpublish ${status}`, async () => {
+                // Log in with the current account
+                await mainPages[0].logIn({email: creds.email, password: creds.password});
+                await mainPages[0].closePage()
 
-            test(`Main Slider Promo and Tourn ${status} ${locale}`, async ({page}) => {
-                tag: "@promo"
-                await mainPage.logIn({email: creds.email, password: creds.password})
-                await mainPage.changeLanguge(locale)
-                await mainPage.clickThroughAllBanners()
+                const localesToTestMain = [
+                    {
+                        lang: 'EN',
+                        page: mainPages[1],
+                        promoTitle: promoTournTitle.EN.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn
+                    },
+                    {
+                        lang: 'EN-AU',
+                        page: mainPages[2],
+                        promoTitle: promoTournTitle.EN.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn
+                    },
+                    {
+                        lang: 'EN-NZ',
+                        page: mainPages[3],
+                        promoTitle: promoTournTitle.EN.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn
+                    },
+                    {
+                        lang: 'CA',
+                        page: mainPages[4],
+                        promoTitle: promoTournTitle.CA.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn
+                    },
+                    {
+                        lang: 'DE',
+                        page: mainPages[5],
+                        promoTitle: promoTournTitle.DE.promo,
+                        tournamentTitle: promoTournTitle.DE.tourn
+                    },
+                    {
+                        lang: 'FR-CA',
+                        page: mainPages[6],
+                        promoTitle: promoTournTitle.FR.promo,
+                        tournamentTitle: promoTournTitle.FR.tourn
+                    },
+                    {
+                        lang: 'NO',
+                        page: mainPages[7],
+                        promoTitle: promoTournTitle.NO.promo,
+                        tournamentTitle: promoTournTitle.NO.tourn
+                    },
+                ];
 
-                const promoMainText = await mainPage.getPromoMainText()
-                const tournamentMainText = await mainPage.getTournamentMainText()
-                console.log(promoMainText)
-                console.log(tournamentMainText)
+                const localesToTestPromo = [
+                    {
+                        lang: 'EN',
+                        page: promoPages[8],
+                        promoTitle: promoTournTitle.EN.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn,
+                        vipPromoTitle: promoTournTitle.EN.vip
+                    },
+                    {
+                        lang: 'EN-AU',
+                        page: promoPages[9],
+                        promoTitle: promoTournTitle.EN.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn,
+                        vipPromoTitle: promoTournTitle.EN.vip
+                    },
+                    {
+                        lang: 'EN-NZ',
+                        page: promoPages[10],
+                        promoTitle: promoTournTitle.EN.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn,
+                        vipPromoTitle: promoTournTitle.EN.vip
+                    },
+                    {
+                        lang: 'CA',
+                        page: promoPages[11],
+                        promoTitle: promoTournTitle.CA.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn,
+                        vipPromoTitle: promoTournTitle.EN.vip
+                    },
+                    {
+                        lang: 'DE',
+                        page: promoPages[12],
+                        promoTitle: promoTournTitle.DE.promo,
+                        tournamentTitle: promoTournTitle.DE.tourn,
+                        vipPromoTitle: promoTournTitle.DE.vip
+                    },
+                    {
+                        lang: 'FR-CA',
+                        page: promoPages[13],
+                        promoTitle: promoTournTitle.FR.promo,
+                        tournamentTitle: promoTournTitle.FR.tourn,
+                        vipPromoTitle: promoTournTitle.FR.vip
+                    },
+                    {
+                        lang: 'NO',
+                        page: promoPages[14],
+                        promoTitle: promoTournTitle.NO.promo,
+                        tournamentTitle: promoTournTitle.NO.tourn,
+                        vipPromoTitle: promoTournTitle.NO.vip
+                    },
+                ];
+
+                const localesToTestTournament = [
+                    {
+                        lang: 'EN',
+                        page: tournamentPages[15],
+                        promoTitle: promoTournTitle.EN.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn
+                    },
+                    {
+                        lang: 'EN-AU',
+                        page: tournamentPages[16],
+                        promoTitle: promoTournTitle.EN.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn
+                    },
+                    {
+                        lang: 'EN-NZ',
+                        page: tournamentPages[17],
+                        promoTitle: promoTournTitle.EN.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn
+                    },
+                    {
+                        lang: 'CA',
+                        page: tournamentPages[18],
+                        promoTitle: promoTournTitle.CA.promo,
+                        tournamentTitle: promoTournTitle.EN.tourn
+                    },
+                    {
+                        lang: 'DE',
+                        page: tournamentPages[19],
+                        promoTitle: promoTournTitle.DE.promo,
+                        tournamentTitle: promoTournTitle.DE.tourn
+                    },
+                    {
+                        lang: 'FR-CA',
+                        page: tournamentPages[20],
+                        promoTitle: promoTournTitle.FR.promo,
+                        tournamentTitle: promoTournTitle.FR.tourn
+                    },
+                    {
+                        lang: 'NO',
+                        page: tournamentPages[21],
+                        promoTitle: promoTournTitle.NO.promo,
+                        tournamentTitle: promoTournTitle.NO.tourn
+                    },
+                ];
+
+                const allTests = [
+                    ...localesToTestMain.map(async ({lang, page, promoTitle, tournamentTitle}) => {
+                        await test.step(`Checking ${lang} Main Page`, async () => {
+                            await page.goTo(mainPageLink);
+                            await page.waitForTimeout(3000)
+                            await page.changeLanguge(lang);
+                            await page.clickThroughAllBanners();
+
+                            await Promise.all([
+                                test.step('Promo Main Page Slider', async () => {
+                                    console.log(chalk.yellow(`Checking Promo Main Page Slider for ${lang}`))
+                                    const titleIsNotFound = await page.checkPromoTourn({
+                                        promoType: 'mainSlider',
+                                        lang: locales[lang],
+                                        expectedValue: promoTitle,
+                                        section: 'mainSlider',
+                                    });
+
+                                    if (!titleIsNotFound) {
+                                        logError(
+                                            `Promo Main Page Slider - ${lang}`,
+                                            `Expected promo title "${promoTitle}" is found`,
+                                            promoTitle,
+                                            titleIsNotFound
+                                        )
+                                        errorSummary.push(`Promo Main Page Slider - ${lang}: ${promoTitle} is found`)
+                                    } else {
+                                        console.log(`Promo Main Page Slider check passed for ${lang}`)
+                                    }
+
+                                    expect.soft(titleIsNotFound).toEqual(true);
+                                }),
+
+                                test.step('Promo Main Footer', async () => {
+                                    const titleIsNotFound = await page.checkPromoTourn({
+                                        promoType: 'footer',
+                                        lang: locales[lang],
+                                        expectedValue: promoTitle,
+                                        section: 'footer',
+                                    });
+
+                                    if (!titleIsNotFound) {
+                                        logError(
+                                            `Promo Footer - ${lang}`,
+                                            `Expected promo title "${promoTitle}" is found`,
+                                            promoTitle,
+                                            titleIsNotFound
+                                        )
+                                        errorSummary.push(`Promo Footer - ${lang}: ${promoTitle} is found`)
+                                    } else {
+                                        console.log(`Promo Footer check passed for ${lang}`)
+                                    }
+
+                                    expect.soft(titleIsNotFound).toEqual(true);
+                                }),
+
+                                test.step('Tournament Main Page Slider', async () => {
+                                    const titleIsNotFound = await page.checkPromoTourn({
+                                        promoType: 'tournament',
+                                        lang: locales[lang],
+                                        expectedValue: tournamentTitle,
+                                        section: 'tournament',
+                                    });
+
+                                    if (!titleIsNotFound) {
+                                        logError(
+                                            `Tournament Main Page Slider - ${lang}`,
+                                            `Expected tournament title "${tournamentTitle}" is found`,
+                                            tournamentTitle,
+                                            titleIsNotFound
+                                        )
+                                        errorSummary.push(`Tournament Main Page Slider - ${lang}: ${tournamentTitle} is found`)
+                                    } else {
+                                        console.log(`Tournament Main Page Slider check passed for ${lang}`)
+                                    }
+
+                                    expect.soft(titleIsNotFound).toEqual(true);
+                                })
+                            ])
+                            await page.closePage()
+                        })
+                    }),
+
+                    ...localesToTestPromo.map(async ({lang, page, promoTitle, tournamentTitle, vipPromoTitle}) => {
+                        await test.step(`Checking ${lang} Promo and Tournament Page`, async () => {
+                            await page.waitForTimeout(13000)
+                            await page.goTo(promoPageLink);
+                            await page.waitForTimeout(2000)
+                            await page.changeLanguge(lang);
+                            await page.waitForTimeout(1000)
+
+                            await Promise.all([
+                                test.step('Promo Card', async () => {
+                                    const titleIsNotFound = await page.checkPromoTourn({
+                                        promoType: 'promo',
+                                        lang: locales[lang],
+                                        expectedValue: promoTitle,
+                                        section: 'promo',
+                                    });
+
+                                    if (!titleIsNotFound) {
+                                        logError(
+                                            `Promo Promo Page - ${lang}`,
+                                            `Expected promo title "${promoTitle}" is found`,
+                                            promoTitle,
+                                            titleIsNotFound
+                                        )
+                                        errorSummary.push(`Promo Promo Page - ${lang}: ${promoTitle} is found`)
+
+                                    } else {
+                                        console.log(`Promo Promo Page check passed for ${lang}`)
+                                    }
+
+                                    expect.soft(titleIsNotFound).toEqual(true);
+                                }),
+
+                                test.step('Tournament Promo', async () => {
+                                    const titleIsNotFound = await page.checkPromoTourn({
+                                        promoType: 'tournament',
+                                        lang: locales[lang],
+                                        expectedValue: tournamentTitle,
+                                        section: 'tournament',
+                                    });
+
+                                    if (!titleIsNotFound) {
+                                        logError(
+                                            `Promo Promo Page - ${lang}`,
+                                            `Expected promo title "${tournamentTitle}" is found`,
+                                            tournamentTitle,
+                                            titleIsNotFound
+                                        )
+                                        errorSummary.push(`Tournament Promo Page - ${lang}: ${tournamentTitle} is found`)
+
+                                    } else {
+                                        console.log(`Tournament Promo Page check passed for ${lang}`)
+                                    }
+
+                                    expect.soft(titleIsNotFound).toEqual(true);
+
+                                }),
+
+                                test.step('Check VIP promos', async () => {
+                                    await page.vipButtonElement.click()
+
+                                    await page.changeLanguge(lang);
+                                    const receivedArray = await page.getPromoCardText()
+                                    const titleIsNotFoundVip = await page.checkTitle({
+                                        receivedArray: receivedArray,
+                                        expectedValue: vipPromoTitle
+                                    })
+
+                                    if (!titleIsNotFoundVip) {
+                                        logError(
+                                            `VIP Promo Page - ${lang}`,
+                                            `Expected promo title "${vipPromoTitle}" is found`,
+                                            vipPromoTitle,
+                                            titleIsNotFoundVip
+                                        )
+                                        errorSummary.push(`VIP Promo Page - ${lang}: ${vipPromoTitle} is found`)
+                                    } else {
+                                        console.log(`VIP Promo Page check passed for ${lang}`)
+                                    }
+                                })
+                                //@ts-ignore
+                            ])
+                        })
+                        await page.closePage()
+                    }),
+                    ...localesToTestTournament.map(async ({lang, page, promoTitle, tournamentTitle}) => {
+                        await test.step(`Checking ${lang} Tournament Page`, async () => {
+                            await page.goTo(tournamentPageLink);
+                            await page.waitForTimeout(2000)
+                            await page.changeLanguge(lang);
+                            console.log(lang)
 
 
-                const promoTitleCheck = await mainPage.checkTitle({receivedArray: promoMainText, expectedValue: promo})
-                const tournTitleCheck = await mainPage.checkTitle({receivedArray: tournamentMainText, expectedValue: tourn})
+                            await Promise.all([
+                                test.step('Tournament Page Tournament', async () => {
+                                    const receivedArray = await page.getTournamentPromoText();
+                                    const titleIsNotFoundTournament = await page.checkTitle({
+                                        receivedArray: receivedArray,
+                                        expectedValue: tournamentTitle
+                                    })
 
-                await qase.comment(`
-                    ${promoMainText}\n\n
-                    ${tournamentMainText}\n\n
-                    ${JSON.stringify(promoTitleCheck)}\n\n
-                    ${JSON.stringify(tournTitleCheck)}\n\n
-                `)
+                                    if (!titleIsNotFoundTournament) {
+                                        logError(
+                                            `Tournament Page - ${lang}`,
+                                            `Expected promo title "${tournamentTitle}" is found`,
+                                            tournamentTitle,
+                                            titleIsNotFoundTournament
+                                        )
+                                        errorSummary.push(`Tournament Page - ${lang}: ${tournamentTitle} is found`)
 
-            })
+                                    } else {
+                                        console.log(`Tournament Page check passed for ${lang}`)
+                                    }
 
-            test(`Footer slider${status} ${locale}`, async ({page}) => {
-                tag: "@promo"
-                await mainPage.logIn({email: creds.email, password: creds.password})
-                await mainPage.changeLanguge(locale)
-                const promoFooterTitles = await mainPage.getFooterPromoTitles()
-                const promoTitleCheck = await mainPage.checkTitle({receivedArray: promoFooterTitles, expectedValue: promo})
-                console.log(promoFooterTitles)
+                                    expect.soft(titleIsNotFoundTournament).toEqual(true);
 
-                await qase.comment(`
-                    ${promoFooterTitles}\n\n
-                    ${JSON.stringify(promoTitleCheck)}\n\n
-                `)
+                                }),
+
+                                test.step('Check Promo Tournament Page', async () => {
+                                    const receivedArray = await page.getPromoCardText();
+                                    const titleIsNotFoundPromo = await page.checkTitle({
+                                        receivedArray: receivedArray,
+                                        expectedValue: promoTitle
+                                    })
+
+                                    if (!titleIsNotFoundPromo) {
+                                        logError(
+                                            `Tournament Page - ${lang}`,
+                                            `Expected promo title "${promoTitle}" is found`,
+                                            promoTitle,
+                                            titleIsNotFoundPromo
+                                        )
+                                        errorSummary.push(`Tournament Page - ${lang}: ${promoTitle} is found`)
+
+                                    } else {
+                                        console.log(`Tournament Page check passed for ${lang}`)
+                                    }
+
+                                    expect.soft(titleIsNotFoundPromo).toEqual(true);
+
+                                }),
+                            ])
+                        })
+                        await page.closePage()
+                    })
+                ]
+                await Promise.all(allTests);
             })
 
         }
 
-    }
 
-})
-
-
-test.describe('Check unpublish on the promo page', () => {
-
-    let promoPage: PromoPage
-
-    test.beforeEach(async ({page}) => {
-        promoPage = new PromoPage(page);
-
-        await promoPage.goTo(promoPageLink)
-    })
-
-    for (const [status, creds] of Object.entries(STAGE_USER_ACCOUTNS)) {
-        for (const locale of Object.values(locales)) {
-            const {promo, tourn} = getPromoTournTitle(locale)
-
-            test(`Promo Promo page ${status} ${locale}`, async ({page}) => {
-                tag: "@promo"
-                await promoPage.logIn({email: creds.email, password: creds.password})
-                await promoPage.changeLanguge(locale)
-                await page.waitForTimeout(100)
-                const promoMainText = await promoPage.getPromoCardText()
-                const promoTitleCheck = await promoPage.checkTitle({receivedArray: promoMainText, expectedValue: promo})
-                console.log(promoMainText)
-
-                await qase.comment(`
-                        ${promoMainText}\n\n
-                        ${JSON.stringify(promoTitleCheck)}\n\n
-                    `)
-            })
-
-            test(`Tournament Promo Page ${status} ${locale}`, async ({page}) => {
-                tag: "@tourn"
-                await promoPage.logIn({email: creds.email, password: creds.password})
-                await promoPage.changeLanguge(locale)
-                await page.waitForTimeout(1000)
-                const tournamentPromoText = await promoPage.getTournamentPromoText()
-                const tournTitleCheck = await promoPage.checkTitle({
-                    receivedArray: tournamentPromoText,
-                    expectedValue: tourn
-                })
-                console.log(tournamentPromoText)
-
-                await qase.comment(`
-                        ${tournamentPromoText}\n\n
-                        ${JSON.stringify(tournTitleCheck)}\n\n
-                    `)
-            })
+    test.afterAll(() => {
+        if (errorSummary.length > 0) {
+            console.log(chalk.bgRed.whiteBright('\n=== ERROR SUMMARY ==='));
+            errorSummary.forEach((error, index) => {
+                console.log(chalk.red(`${index + 1}. ${error}`));
+            });
+        } else {
+            console.log(chalk.bgGreen.whiteBright('\nAll tests passed without errors!'));
         }
-    }
-})
-
-test.describe('Check unpublished promo on the tournament page', () => {
-    let tournamentPage: PromoPage
-
-        test.beforeEach(async ({page}) => {
-            tournamentPage = new PromoPage(page);
-
-            await tournamentPage.goTo(tournamentPageLink)
-        })
-
-    for (const [status, creds] of Object.entries(STAGE_USER_ACCOUTNS)) {
-        for (const locale of Object.values(locales)) {
-            const {promo, tourn} = getPromoTournTitle(locale)
-
-
-            test(`Promo Tournament Page ${status} ${locale}`, async ({page}) => {
-                tag: "@promo"
-                await tournamentPage.logIn({email: creds.email, password: creds.password})
-                await tournamentPage.changeLanguge(locale)
-                await page.waitForTimeout(100)
-                const promoMainText = await tournamentPage.getPromoCardText()
-                const promoTitleCheck = await tournamentPage.checkTitle({
-                    receivedArray: promoMainText,
-                    expectedValue: promo
-                })
-                console.log(promoMainText)
-
-                await qase.comment(`
-                    ${promoMainText}\n\n
-                    ${JSON.stringify(promoTitleCheck)}\n\n
-                `)
-            })
-
-            test(`Tournament Tournament Page ${status} ${locale}`, async ({page}) => {
-                tag: "@tourn"
-                await tournamentPage.logIn({email: creds.email, password: creds.password})
-                await tournamentPage.changeLanguge(locale)
-                await page.waitForTimeout(1000)
-                const tournamentPromoText = await tournamentPage.getTournamentPromoText()
-                const tournTitleCheck = await tournamentPage.checkTitle({
-                    receivedArray: tournamentPromoText,
-                    expectedValue: tourn
-                })
-                console.log(tournamentPromoText)
-
-                await qase.comment(`
-                    ${tournamentPromoText}\n\n
-                    ${JSON.stringify(tournTitleCheck)}\n\n
-                `)
-            })
-        }
-    }
+    });
 })
 

@@ -36,14 +36,14 @@ export default class BasePage {
         await this.page.waitForSelector('#header_dep_btn')
     }
 
-    async changeLanguge(langValue: string, domain: string): Promise<void> {
+    async changeLanguge(langValue: string, domain?: string): Promise<void> {
+        await this.page.waitForLoadState('load')
         if (domain === 'win20') {
             console.log('Win 20 domain, no language change required')
         } else {
             const currentLocale = await this.langDropdown.innerText()
-            await this.page.waitForTimeout(1000)
 
-            if (currentLocale === langValue) {
+            if (currentLocale.trim().toUpperCase() === langValue.trim().toUpperCase()) {
                 console.log(`Language is already set to ${langValue}`)
                 return
             } else {

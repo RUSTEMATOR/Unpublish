@@ -52,19 +52,19 @@ export default class MainPage extends BasePage {
         if (section === 'mainSlider'){
             receivedArray = await this.getPromoMainText()
             titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
-            console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+            //console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
 
 
         } else if (section === 'footer') {
             receivedArray = await this.getFooterPromoTitles()
             titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
-            console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+            //console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
 
 
         } else if (section === 'tournament') {
             receivedArray = await this.getTournamentMainText()
             titleIsNotFound = await this.checkTitle({receivedArray, expectedValue})
-            console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
+            //console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`))
 
         } 
         else {

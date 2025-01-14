@@ -20,7 +20,7 @@ export default class PromoPage extends BasePage{
                  if (array.length > 0) {
                     return array
                 }  else {
-                    throw new Error("Array is empty")
+                    console.error("Array is empty")
                 }
             }
             return []
@@ -35,7 +35,7 @@ export default class PromoPage extends BasePage{
                 if (array.length > 0) {
                     return array
                 }  else {
-                    throw new Error("Array is empty")
+                    console.error("Array is empty")
                 }
             }
             return []

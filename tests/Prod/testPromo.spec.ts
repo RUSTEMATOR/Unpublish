@@ -116,6 +116,7 @@ testDomains.forEach(({domain, mainPageLink, promoPageLink, tournamentPageLink}) 
 
             // Navigate to the main and promo pages
             await mainPages[0].goTo(mainPageLink);
+            await mainPages[0].waitForTimeout(2000)
 
         });
             for (const [status, creds] of Object.entries(USER_ACCOUTNS)) {
@@ -270,6 +271,7 @@ testDomains.forEach(({domain, mainPageLink, promoPageLink, tournamentPageLink}) 
                         ...localesToTestMain.map(async ({lang, page, promoTitle, tournamentTitle}) => {
                             await test.step(`Checking ${lang} Main Page`, async () => {
                                 await page.goTo(mainPageLink);
+                                await page.waitForTimeout(2000)
                                 await page.changeLanguge(lang, domain);
                                 await page.clickThroughAllBanners();
 
@@ -352,8 +354,8 @@ testDomains.forEach(({domain, mainPageLink, promoPageLink, tournamentPageLink}) 
                             await test.step(`Checking ${lang} Promo and Tournament Page`, async () => {
                                 await page.waitForTimeout(13000)
                                 await page.goTo(promoPageLink);
+                                await page.waitForTimeout(2000)
                                 await page.changeLanguge(lang, domain);
-                                await page.waitForTimeout(1000)
 
                                 await Promise.all([
                                     test.step('Promo Card', async () => {
@@ -436,9 +438,9 @@ testDomains.forEach(({domain, mainPageLink, promoPageLink, tournamentPageLink}) 
                             await test.step(`Checking ${lang} Tournament Page`, async () => {
                                 await page.waitForTimeout(10000)
                                 await page.goTo(tournamentPageLink);
+                                await page.waitForTimeout(2000)
                                 await page.changeLanguge(lang, domain);
-                                console.log(lang)
-                                await page.waitForTimeout(1000)
+
 
                                 await Promise.all([
                                     test.step('Tournament Page Tournament', async () => {
