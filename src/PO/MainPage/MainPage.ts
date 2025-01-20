@@ -18,8 +18,6 @@ export default class MainPage extends BasePage {
             return number
         })
 
-        console.log(numberOfBanners)
-
         for (let i = 0; i < numberOfBanners; i++) {
             await this.arrowMainSlider.click()
             await this.page.waitForTimeout(1000)
