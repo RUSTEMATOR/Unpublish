@@ -11,13 +11,12 @@ const locales: Ilocale = {
     'EN-NZ': 'EN-NZ',
     'CA': 'CA',
     'EN': 'EN',
-    'FR': 'FR-CA',
     'DE': 'DE',
     'NO': 'NO'
 };
 
 const commonPromoTournTitle = {
-    promo: 'Cashback',
+    promo: 'ROYAL PREMIERE SPINS',
     tourn: 'nonTourn',
     vip: `nonVip`
 };
@@ -28,17 +27,12 @@ const promoTournTitle: IpromoTournTitle = {
     'EN-NZ': commonPromoTournTitle,
     'CA': commonPromoTournTitle,
     DE: {
-        promo: 'Königliche Premierenspiele',
-        tourn: 'nonTourn',
-        vip: `nonVip`
-    },
-    'FR': {
-        promo: 'Tours de Première Royale',
+        promo: 'KÖNIGLICHE PREMIERENSPIELE',
         tourn: 'nonTourn',
         vip: `nonVip`
     },
     NO: {
-        promo: 'Kongelige premierespinn\n',
+        promo: 'KONGELIGE PREMIERESPINN',
         tourn: 'nonTourn',
         vip: `nonVip`
     }
@@ -90,7 +84,7 @@ test.describe('Check unpublish on the main page', () => {
 
     test.beforeEach(async ({ browser }) => {
         // Initialize pages and page objects
-        const result = await initializePages(browser, 22);
+        const result = await initializePages(browser, 19);
         pages = result.pages;
         mainPages = result.mainPages;
         promoPages = result.promoPages;
@@ -138,14 +132,8 @@ test.describe('Check unpublish on the main page', () => {
                     tournamentTitle: promoTournTitle.DE.tourn
                 },
                 {
-                    lang: 'FR-CA',
-                    page: mainPages[6],
-                    promoTitle: promoTournTitle.FR.promo,
-                    tournamentTitle: promoTournTitle.FR.tourn
-                },
-                {
                     lang: 'NO',
-                    page: mainPages[7],
+                    page: mainPages[6],
                     promoTitle: promoTournTitle.NO.promo,
                     tournamentTitle: promoTournTitle.NO.tourn
                 },
@@ -154,49 +142,42 @@ test.describe('Check unpublish on the main page', () => {
             const localesToTestPromo = [
                 {
                     lang: 'EN',
-                    page: promoPages[8],
+                    page: promoPages[7],
                     promoTitle: promoTournTitle.EN.promo,
                     tournamentTitle: promoTournTitle.EN.tourn,
                     vipPromoTitle: promoTournTitle.EN.vip
                 },
                 {
                     lang: 'EN-AU',
-                    page: promoPages[9],
+                    page: promoPages[8],
                     promoTitle: promoTournTitle.EN.promo,
                     tournamentTitle: promoTournTitle.EN.tourn,
                     vipPromoTitle: promoTournTitle.EN.vip
                 },
                 {
                     lang: 'EN-NZ',
-                    page: promoPages[10],
+                    page: promoPages[9],
                     promoTitle: promoTournTitle.EN.promo,
                     tournamentTitle: promoTournTitle.EN.tourn,
                     vipPromoTitle: promoTournTitle.EN.vip
                 },
                 {
                     lang: 'CA',
-                    page: promoPages[11],
+                    page: promoPages[10],
                     promoTitle: promoTournTitle.CA.promo,
                     tournamentTitle: promoTournTitle.EN.tourn,
                     vipPromoTitle: promoTournTitle.EN.vip
                 },
                 {
                     lang: 'DE',
-                    page: promoPages[12],
+                    page: promoPages[11],
                     promoTitle: promoTournTitle.DE.promo,
                     tournamentTitle: promoTournTitle.DE.tourn,
                     vipPromoTitle: promoTournTitle.DE.vip
                 },
                 {
-                    lang: 'FR-CA',
-                    page: promoPages[13],
-                    promoTitle: promoTournTitle.FR.promo,
-                    tournamentTitle: promoTournTitle.FR.tourn,
-                    vipPromoTitle: promoTournTitle.FR.vip
-                },
-                {
                     lang: 'NO',
-                    page: promoPages[14],
+                    page: promoPages[12],
                     promoTitle: promoTournTitle.NO.promo,
                     tournamentTitle: promoTournTitle.NO.tourn,
                     vipPromoTitle: promoTournTitle.NO.vip
@@ -206,43 +187,37 @@ test.describe('Check unpublish on the main page', () => {
             const localesToTestTournament = [
                 {
                     lang: 'EN',
-                    page: tournamentPages[15],
+                    page: tournamentPages[13],
                     promoTitle: promoTournTitle.EN.promo,
                     tournamentTitle: promoTournTitle.EN.tourn
                 },
                 {
                     lang: 'EN-AU',
-                    page: tournamentPages[16],
+                    page: tournamentPages[14],
                     promoTitle: promoTournTitle.EN.promo,
                     tournamentTitle: promoTournTitle.EN.tourn
                 },
                 {
                     lang: 'EN-NZ',
-                    page: tournamentPages[17],
+                    page: tournamentPages[15],
                     promoTitle: promoTournTitle.EN.promo,
                     tournamentTitle: promoTournTitle.EN.tourn
                 },
                 {
                     lang: 'CA',
-                    page: tournamentPages[18],
+                    page: tournamentPages[16],
                     promoTitle: promoTournTitle.CA.promo,
                     tournamentTitle: promoTournTitle.EN.tourn
                 },
                 {
                     lang: 'DE',
-                    page: tournamentPages[19],
+                    page: tournamentPages[17],
                     promoTitle: promoTournTitle.DE.promo,
                     tournamentTitle: promoTournTitle.DE.tourn
                 },
                 {
-                    lang: 'FR-CA',
-                    page: tournamentPages[20],
-                    promoTitle: promoTournTitle.FR.promo,
-                    tournamentTitle: promoTournTitle.FR.tourn
-                },
-                {
                     lang: 'NO',
-                    page: tournamentPages[21],
+                    page: tournamentPages[18],
                     promoTitle: promoTournTitle.NO.promo,
                     tournamentTitle: promoTournTitle.NO.tourn
                 },
