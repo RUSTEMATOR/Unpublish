@@ -24,23 +24,10 @@ export const STAGE_USER_ACCOUTNS = {
 
     King: {
         email: 'new_king@kingbilly.xyz',
-        password: 'KingBilly123!'
-    }
-}
-
-export const VIP_ONLY = {
-    King: {
-        email: 'new_king@kingbilly.xyz',
         password: '193786Az()'
     }
 }
 
-export const VIP_ONLY_STAGE = {
-    King: {
-        email: 'new_king@kingbilly.xyz',
-        password: '193786Az()'
-    }
-}
 
 
 // function logCreds() {

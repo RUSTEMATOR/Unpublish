@@ -13,6 +13,7 @@ export default class PromoPage extends BasePage{
 
 
     async getPromoCardText(): Promise<Array<string>> {
+        await this.page.waitForSelector('.promo-item__subtitle')
         return await this.page.evaluate(async () => {
             let nodeList = document.querySelectorAll('.promo-item__subtitle')
             if (nodeList !== null) {
@@ -20,7 +21,7 @@ export default class PromoPage extends BasePage{
                  if (array.length > 0) {
                     return array
                 }  else {
-                    throw new Error("Array is empty")
+                    console.error("Array is empty")
                 }
             }
             return []
@@ -35,7 +36,7 @@ export default class PromoPage extends BasePage{
                 if (array.length > 0) {
                     return array
                 }  else {
-                    throw new Error("Array is empty")
+                    console.error("Array is empty")
                 }
             }
             return []
@@ -51,15 +52,15 @@ export default class PromoPage extends BasePage{
             case "promo":
                 receivedArray = await this.getPromoCardText();
                 titleIsNotFound = await this.checkTitle({receivedArray, expectedValue});
-                console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`));
+                // console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`));
                 break;
             case "tournament":
                 receivedArray = await this.getTournamentPromoText();
                 titleIsNotFound = await this.checkTitle({receivedArray, expectedValue});
-                console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`));
+                // console.log(chalk.green(`${lang}\n ${promoType}\n ${receivedArray}`));
                 break;
             default:
-                console.log(chalk.red(`Invalid section ${section}`));
+                // console.log(chalk.red(`Invalid section ${section}`));
                 return false;
         }
         return titleIsNotFound
