@@ -17,7 +17,7 @@ const locales: Ilocale = {
 };
 
 const commonPromoTournTitle = {
-    promo: 'ROYAL PREMIERE SPINS',
+    promo: 'KING’S WEEK',
     tourn: 'nonTourn',
     vip: `nonVip`
 };
@@ -28,16 +28,34 @@ const promoTournTitle: IpromoTournTitle = {
     'EN-NZ': commonPromoTournTitle,
     'CA': commonPromoTournTitle,
     DE: {
-        promo: 'KÖNIGLICHE PREMIERENSPIELE',
+        promo: 'KÖNIGSWOCHE',
         tourn: 'nonTourn',
         vip: `nonVip`
     },
     NO: {
-        promo: 'KONGELIGE PREMIERESPINN',
+        promo: 'KONGENS UKE',
         tourn: 'nonTourn',
         vip: `nonVip`
     }
 };
+
+const mainPageLinkMaster = 'https://www.kingbillycasino.com/';
+const promoPageLinkMaster = 'https://www.kingbillycasino.com/promotions';
+const tournamentPageLinkMaster = 'https://www.kingbillycasino.com/tournaments';
+
+const mainPageLinkBet1 = 'https://www.kingbillybet1.com/';
+const promoPageLinkBet1 = 'https://www.kingbillybet1.com/promotions';
+const tournamentPageLinkBet1 = 'https://www.kingbillybet1.com/tournaments';
+
+const mainPageLinkWin = 'https://www.kingbillywin20.com/';
+const promoPageLinkWin = 'https://www.kingbillywin20.com/promotions';
+const tournamentPageLinkWin = 'https://www.kingbillywin20.com/tournaments';
+
+const testDomains = [
+    { domain: 'master', mainPageLink: mainPageLinkMaster, promoPageLink: promoPageLinkMaster, tournamentPageLink: tournamentPageLinkMaster },
+    { domain: 'win20', mainPageLink: mainPageLinkWin, promoPageLink: promoPageLinkWin, tournamentPageLink: tournamentPageLinkWin },
+    { domain: 'bet1', mainPageLink: mainPageLinkBet1, promoPageLink: promoPageLinkBet1, tournamentPageLink: tournamentPageLinkBet1 },
+];
 
 
 async function initializePages(browser: Browser, numberOfPages: number): Promise<{ pages: Page[], mainPages: MainPage[], promoPages: PromoPage[], tournamentPages: PromoPage[] }> {
@@ -75,30 +93,14 @@ function logError(context: string, message: string, expected?: string, actual?: 
 
 let errorSummary: Array<string> = [];
 
-const mainPageLinkMaster = 'https://www.kingbillycasino.com/';
-const promoPageLinkMaster = 'https://www.kingbillycasino.com/promotions';
-const tournamentPageLinkMaster = 'https://www.kingbillycasino.com/tournaments';
-
-const mainPageLinkBet1 = 'https://www.kingbillybet1.com/';
-const promoPageLinkBet1 = 'https://www.kingbillybet1.com/promotions';
-const tournamentPageLinkBet1 = 'https://www.kingbillybet1.com/tournaments';
-
-const mainPageLinkWin = 'https://www.kingbillywin20.com/';
-const promoPageLinkWin = 'https://www.kingbillywin20.com/promotions';
-const tournamentPageLinkWin = 'https://www.kingbillywin20.com/tournaments';
-
-const testDomains = [
-    { domain: 'master', mainPageLink: mainPageLinkMaster, promoPageLink: promoPageLinkMaster, tournamentPageLink: tournamentPageLinkMaster },
-    { domain: 'win20', mainPageLink: mainPageLinkWin, promoPageLink: promoPageLinkWin, tournamentPageLink: tournamentPageLinkWin },
-    { domain: 'bet1', mainPageLink: mainPageLinkBet1, promoPageLink: promoPageLinkBet1, tournamentPageLink: tournamentPageLinkBet1 },
-];
 
 testDomains.forEach(({ domain, mainPageLink, promoPageLink, tournamentPageLink }) => {
-    test.describe.only(`Check unpublish ${domain}`, () => {
+    test.describe(`Check unpublish ${domain}`, () => {
         let pages: Page[];
         let mainPages: MainPage[];
         let promoPages: PromoPage[];
         let tournamentPages: PromoPage[];
+        const steps: Promise<void>[] = [];
 
         test.beforeEach(async ({ browser }) => {
             // Initialize pages and page objects
@@ -115,9 +117,14 @@ testDomains.forEach(({ domain, mainPageLink, promoPageLink, tournamentPageLink }
 
         for (const [status, creds] of Object.entries(USER_ACCOUTNS)) {
             test(`Unpublish ${status}`, async () => {
-                // Log in with the current account
-                await mainPages[0].logIn({ email: creds.email, password: creds.password });
-                await mainPages[0].closePage();
+                // skip log in if user is anon
+                if (creds.type === 'anon') {
+                    console.log(chalk.yellow(`Skipping login for ${status} user`));
+                    await mainPages[0].closePage();
+                } else {
+                    await mainPages[0].logIn({ email: creds.email, password: creds.password });
+                    await mainPages[0].closePage();
+                }
 
                 const localesToTestMain = [
                     {
@@ -254,10 +261,11 @@ testDomains.forEach(({ domain, mainPageLink, promoPageLink, tournamentPageLink }
                                 await page.goTo(mainPageLink);
                                 await page.waitForTimeout(2000);
                                 await page.changeLanguge(lang, domain);
+                                if (creds.type !== 'anon') {
                                 await page.clickThroughAllBanners();
 
-                                await Promise.all([
-                                    test.step('Promo Main Page Slider', async () => {
+                                
+                                    steps.push(test.step('Promo Main Page Slider', async () => {
                                         console.log(chalk.yellow(`Checking Promo Main Page Slider for ${lang}`));
                                         const titleIsNotFound = await page.checkPromoTourn({
                                             promoType: 'mainSlider',
@@ -279,54 +287,63 @@ testDomains.forEach(({ domain, mainPageLink, promoPageLink, tournamentPageLink }
                                         }
 
                                         expect.soft(titleIsNotFound).toEqual(true);
-                                    }),
+                                    }));
+                                } else {
+                                    console.log(chalk.yellow(`Skipping Promo Main Page Slider check for ${lang} as user is anon`));
+                                }
 
-                                    test.step('Promo Main Footer', async () => {
-                                        const titleIsNotFound = await page.checkPromoTourn({
-                                            promoType: 'footer',
-                                            lang: locales[lang],
-                                            expectedValue: promoTitle,
-                                            section: 'footer',
-                                        });
+                                // Promo Footer (always run)
+                                steps.push(test.step('Promo Main Footer', async () => {
+                                    const titleIsNotFound = await page.checkPromoTourn({
+                                        promoType: 'footer',
+                                        lang: locales[lang],
+                                        expectedValue: promoTitle,
+                                        section: 'footer',
+                                    });
 
-                                        if (!titleIsNotFound) {
-                                            logError(
-                                                `Promo Footer - ${lang}`,
-                                                `Expected promo title "${promoTitle}" is found`,
-                                                promoTitle,
-                                                titleIsNotFound
-                                            );
-                                            errorSummary.push(`Promo Footer - ${lang}: ${promoTitle} is found`);
-                                        } else {
-                                            console.log(`Promo Footer check passed for ${lang}`);
-                                        }
+                                    if (!titleIsNotFound) {
+                                        logError(
+                                            `Promo Footer - ${lang}`,
+                                            `Expected promo title "${promoTitle}" is found`,
+                                            promoTitle,
+                                            titleIsNotFound
+                                        );
+                                        errorSummary.push(`Promo Footer - ${lang}: ${promoTitle} is found`);
+                                    } else {
+                                        console.log(`Promo Footer check passed for ${lang}`);
+                                    }
 
-                                        expect.soft(titleIsNotFound).toEqual(true);
-                                    }),
+                                    expect.soft(titleIsNotFound).toEqual(true);
+                                }));
 
-                                    test.step('Tournament Main Page Slider', async () => {
-                                        const titleIsNotFound = await page.checkPromoTourn({
-                                            promoType: 'tournament',
-                                            lang: locales[lang],
-                                            expectedValue: tournamentTitle,
-                                            section: 'tournament',
-                                        });
+                                // Tournament Main Page Slider (always run)
+                                steps.push(test.step('Tournament Main Page Slider', async () => {
+                                    const titleIsNotFound = await page.checkPromoTourn({
+                                        promoType: 'tournament',
+                                        lang: locales[lang],
+                                        expectedValue: tournamentTitle,
+                                        section: 'tournament',
+                                    });
 
-                                        if (!titleIsNotFound) {
-                                            logError(
-                                                `Tournament Main Page Slider - ${lang}`,
-                                                `Expected tournament title "${tournamentTitle}" is found`,
-                                                tournamentTitle,
-                                                titleIsNotFound
-                                            );
-                                            errorSummary.push(`Tournament Main Page Slider - ${lang}: ${tournamentTitle} is found`);
-                                        } else {
-                                            console.log(`Tournament Main Page Slider check passed for ${lang}`);
-                                        }
+                                    if (!titleIsNotFound) {
+                                        logError(
+                                            `Tournament Main Page Slider - ${lang}`,
+                                            `Expected tournament title "${tournamentTitle}" is found`,
+                                            tournamentTitle,
+                                            titleIsNotFound
+                                        );
+                                        errorSummary.push(`Tournament Main Page Slider - ${lang}: ${tournamentTitle} is found`);
+                                    } else {
+                                        console.log(`Tournament Main Page Slider check passed for ${lang}`);
+                                    }
 
-                                        expect.soft(titleIsNotFound).toEqual(true);
-                                    })
-                                ]);
+                                    expect.soft(titleIsNotFound).toEqual(true);
+                                }));
+
+                                // Run all collected steps in parallel
+                                await Promise.all(steps);
+
+                                // Close the page
                                 await page.closePage();
                             });
                         })
@@ -471,7 +488,6 @@ testDomains.forEach(({ domain, mainPageLink, promoPageLink, tournamentPageLink }
                         })
                     )
                 ];
-
                 await Promise.all(allTests);
             });
         }
