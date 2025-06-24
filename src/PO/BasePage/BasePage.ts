@@ -65,6 +65,8 @@ export default class BasePage {
     receivedArray: Array<string>,
     expectedValue: string
 }): Promise<boolean> {
+        console.log(receivedArray)
+        console.log(expectedValue.trim().toUpperCase())
 
     if (receivedArray.includes(expectedValue.trim().toUpperCase())) {
         console.error(chalk.red(`${expectedValue} IS PRESENT ERROR!!!`))
@@ -78,6 +80,8 @@ export default class BasePage {
         console.log(message);
         return true
     }
+
+
 }
 
 

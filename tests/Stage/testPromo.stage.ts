@@ -16,7 +16,7 @@ const locales: Ilocale = {
 };
 
 const commonPromoTournTitle = {
-    promo: 'ROYAL PREMIERE SPINS',
+    promo: 'Royal Premiere Spins',
     tourn: 'nonTourn',
     vip: `nonVip`
 };
@@ -27,12 +27,12 @@ const promoTournTitle: IpromoTournTitle = {
     'EN-NZ': commonPromoTournTitle,
     'CA': commonPromoTournTitle,
     DE: {
-        promo: 'KÖNIGLICHE PREMIERENSPIELE',
+        promo: 'Königliche Premierenspiele',
         tourn: 'nonTourn',
         vip: `nonVip`
     },
     NO: {
-        promo: 'KONGELIGE PREMIERESPINN',
+        promo: 'Kongelige premierespinn',
         tourn: 'nonTourn',
         vip: `nonVip`
     }
@@ -81,6 +81,7 @@ test.describe('Check unpublish on the main page', () => {
     let mainPages: MainPage[];
     let promoPages: PromoPage[];
     let tournamentPages: PromoPage[];
+    const steps: Promise<void>[] = [];
 
     test.beforeEach(async ({ browser }) => {
         // Initialize pages and page objects
@@ -97,8 +98,13 @@ test.describe('Check unpublish on the main page', () => {
     for (const [status, creds] of Object.entries(STAGE_USER_ACCOUTNS)) {
         test(`Unpublish ${status}`, async () => {
             // Log in with the current account
-            await mainPages[0].logIn({ email: creds.email, password: creds.password });
-            await mainPages[0].closePage();
+            if (creds.type === 'anon') {
+                    console.log(chalk.yellow(`Skipping login for ${status} user`));
+                    await mainPages[0].closePage();
+                } else {
+                    await mainPages[0].logIn({ email: creds.email, password: creds.password });
+                    await mainPages[0].closePage();
+                }
 
             const localesToTestMain = [
                 {
@@ -232,34 +238,39 @@ test.describe('Check unpublish on the main page', () => {
                             await page.goTo(mainPageLink);
                             await page.waitForTimeout(6000);
                             await page.changeLanguge(lang);
-                            await page.clickThroughAllBanners();
+                            if (creds.type !== 'anon') {
+                                await page.clickThroughAllBanners();
 
-                            await Promise.all([
-                                test.step('Promo Main Page Slider', async () => {
-                                    console.log(chalk.yellow(`Checking Promo Main Page Slider for ${lang}`));
-                                    const titleIsNotFound = await page.checkPromoTourn({
-                                        promoType: 'mainSlider',
-                                        lang: locales[lang],
-                                        expectedValue: promoTitle,
-                                        section: 'mainSlider',
-                                    });
+                                
+                                    steps.push(test.step('Promo Main Page Slider', async () => {
+                                        console.log(chalk.yellow(`Checking Promo Main Page Slider for ${lang}`));
+                                        const titleIsNotFound = await page.checkPromoTourn({
+                                            promoType: 'mainSlider',
+                                            lang: locales[lang],
+                                            expectedValue: promoTitle,
+                                            section: 'mainSlider',
+                                        });
 
-                                    if (!titleIsNotFound) {
-                                        logError(
-                                            `Promo Main Page Slider - ${lang}`,
-                                            `Expected promo title "${promoTitle}" is found`,
-                                            promoTitle,
-                                            titleIsNotFound
-                                        );
-                                        errorSummary.push(`Promo Main Page Slider - ${lang}: ${promoTitle} is found`);
-                                    } else {
-                                        console.log(`Promo Main Page Slider check passed for ${lang}`);
-                                    }
+                                        if (!titleIsNotFound) {
+                                            logError(
+                                                `Promo Main Page Slider - ${lang}`,
+                                                `Expected promo title "${promoTitle}" is found`,
+                                                promoTitle,
+                                                titleIsNotFound
+                                            );
+                                            errorSummary.push(`Promo Main Page Slider - ${lang}: ${promoTitle} is found`);
+                                        } else {
+                                            console.log(`Promo Main Page Slider check passed for ${lang}`);
+                                        }
 
-                                    expect.soft(titleIsNotFound).toEqual(true);
-                                }),
+                                        expect.soft(titleIsNotFound).toEqual(true);
+                                    }));
+                                } else {
+                                    console.log(chalk.yellow(`Skipping Promo Main Page Slider check for ${lang} as user is anon`));
+                                }
 
-                                test.step('Promo Main Footer', async () => {
+                                // Promo Footer (always run)
+                                steps.push(test.step('Promo Main Footer', async () => {
                                     const titleIsNotFound = await page.checkPromoTourn({
                                         promoType: 'footer',
                                         lang: locales[lang],
@@ -280,9 +291,10 @@ test.describe('Check unpublish on the main page', () => {
                                     }
 
                                     expect.soft(titleIsNotFound).toEqual(true);
-                                }),
+                                }));
 
-                                test.step('Tournament Main Page Slider', async () => {
+                                // Tournament Main Page Slider (always run)
+                                steps.push(test.step('Tournament Main Page Slider', async () => {
                                     const titleIsNotFound = await page.checkPromoTourn({
                                         promoType: 'tournament',
                                         lang: locales[lang],
@@ -303,12 +315,16 @@ test.describe('Check unpublish on the main page', () => {
                                     }
 
                                     expect.soft(titleIsNotFound).toEqual(true);
-                                })
-                            ]);
-                            await page.closePage();
-                        });
-                    })
-                ),
+                                }));
+
+                                // Run all collected steps in parallel
+                                await Promise.all(steps);
+
+                                // Close the page
+                                await page.closePage();
+                            });
+                        })
+                    ),
 
                 ...localesToTestPromo.map(({ lang, page, promoTitle, tournamentTitle, vipPromoTitle }) =>
                     limit(async () => {
