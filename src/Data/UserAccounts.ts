@@ -70,13 +70,13 @@ export const STAGE_USER_ACCOUTNS = {
     ThreeDep: {
         type: 'Three dep',
         email: 'Mike3@kingbilly.xyz',
-        password: 'KingBillyCasino1@'
+        password: 'KingBilly123!'
     },
 
     FourDep: {
         type: 'Four dep',
         email: 'Mike4@kingbilly.xyz',
-        password: 'KingBillyCasino1@'
+        password: 'KingBilly123!'
     },
 
     King: {
