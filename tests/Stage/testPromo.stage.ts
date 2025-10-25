@@ -138,7 +138,7 @@ test.describe('Check unpublish on the main page', () => {
                     tournamentTitle: promoTournTitle.DE.tourn
                 },
                 {
-                    lang: 'NO',
+                    lang: 'EN-NO',
                     page: mainPages[6],
                     promoTitle: promoTournTitle.NO.promo,
                     tournamentTitle: promoTournTitle.NO.tourn
@@ -182,7 +182,7 @@ test.describe('Check unpublish on the main page', () => {
                     vipPromoTitle: promoTournTitle.DE.vip
                 },
                 {
-                    lang: 'NO',
+                    lang: 'EN-NO',
                     page: promoPages[12],
                     promoTitle: promoTournTitle.NO.promo,
                     tournamentTitle: promoTournTitle.NO.tourn,
@@ -222,7 +222,7 @@ test.describe('Check unpublish on the main page', () => {
                     tournamentTitle: promoTournTitle.DE.tourn
                 },
                 {
-                    lang: 'NO',
+                    lang: 'EN-NO',
                     page: tournamentPages[18],
                     promoTitle: promoTournTitle.NO.promo,
                     tournamentTitle: promoTournTitle.NO.tourn

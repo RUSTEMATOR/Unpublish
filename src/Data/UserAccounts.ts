@@ -85,15 +85,3 @@ export const STAGE_USER_ACCOUTNS = {
         password: '193786Az()'
     }
 }
-
-
-
-// function logCreds() {
-//     for (const [status, creds] of Object.entries(USER_ACCOUTNS)){
-//         console.log(`Status: ${status}`)
-//         console.log(`Email: ${creds.email}`)
-//         console.log(`Password: ${creds.password}`)
-//     }
-// }
-//
-// logCreds()
