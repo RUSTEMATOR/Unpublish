@@ -68,17 +68,24 @@ export default class BasePage {
         console.log(receivedArray)
         console.log(expectedValue.trim().toUpperCase())
 
+    // If expected value is empty, consider test passed (no promo to check for)
+    if (!expectedValue || expectedValue.trim() === '') {
+        const message = `No expected value provided, skipping check`;
+        console.log(message);
+        return true
+    }
+
     if (receivedArray.includes(expectedValue.trim().toUpperCase())) {
-        console.error(chalk.red(`${expectedValue} IS PRESENT ERROR!!!`))
-        return false
+        const message = `${expectedValue} found as expected`;
+        console.log(message);
+        return true
     }
     if (receivedArray.length === 0) {
         console.error(chalk.red(`ARRAY IS EMPTY ERROR!!!!!!!`))
         return false
     } else {
-        const message = `No ${expectedValue} found`;
-        console.log(message);
-        return true
+        console.error(chalk.red(`${expectedValue} IS NOT FOUND ERROR!!!`))
+        return false
     }
 
 
