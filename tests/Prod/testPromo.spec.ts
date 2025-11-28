@@ -13,7 +13,7 @@ const locales: Ilocale = {
     'CA': 'CA',
     'EN': 'EN',
     'DE': 'DE',
-    'NO': 'NO'
+    'NO': 'EN-NO'
 };
 
 const commonPromoTournTitle = {
